@@ -1,1 +1,1 @@
-# larry-jeopardy
+# git-money-jeopardy
