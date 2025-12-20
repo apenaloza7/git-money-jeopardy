@@ -1,0 +1,319 @@
+{
+  "activeBoardId": "default",
+  "boards": {
+    "default": {
+      "name": "Git Basics",
+      "data": {
+        "categories": [
+          {
+            "name": "Git Basics",
+            "questions": [
+              {
+                "value": 200,
+                "question": "This command initializes a new Git repository.",
+                "answer": "git init"
+              },
+              {
+                "value": 400,
+                "question": "This command stages changes for the next commit.",
+                "answer": "git add"
+              },
+              {
+                "value": 600,
+                "question": "This command saves your staged changes to the repository history.",
+                "answer": "git commit"
+              },
+              {
+                "value": 800,
+                "question": "This command shows the status of changed files.",
+                "answer": "git status"
+              },
+              {
+                "value": 1000,
+                "question": "This command lists the commit history.",
+                "answer": "git log"
+              }
+            ]
+          },
+          {
+            "name": "Branching",
+            "questions": [
+              {
+                "value": 200,
+                "question": "This command creates a new branch.",
+                "answer": "git branch <name>"
+              },
+              {
+                "value": 400,
+                "question": "This command switches to a different branch.",
+                "answer": "git checkout <name>"
+              },
+              {
+                "value": 600,
+                "question": "This command merges a branch into the current one.",
+                "answer": "git merge"
+              },
+              {
+                "value": 800,
+                "question": "This command creates and switches to a new branch in one step.",
+                "answer": "git checkout -b <name>"
+              },
+              {
+                "value": 1000,
+                "question": "This command deletes a branch.",
+                "answer": "git branch -d <name>"
+              }
+            ]
+          },
+          {
+            "name": "Remote",
+            "questions": [
+              {
+                "value": 200,
+                "question": "This command downloads changes from a remote repository.",
+                "answer": "git pull"
+              },
+              {
+                "value": 400,
+                "question": "This command uploads local changes to a remote repository.",
+                "answer": "git push"
+              },
+              {
+                "value": 600,
+                "question": "This command copies a remote repository to your local machine.",
+                "answer": "git clone"
+              },
+              {
+                "value": 800,
+                "question": "This command adds a new remote repository.",
+                "answer": "git remote add"
+              },
+              {
+                "value": 1000,
+                "question": "This command shows the remote URLs.",
+                "answer": "git remote -v"
+              }
+            ]
+          },
+          {
+            "name": "Advanced",
+            "questions": [
+              {
+                "value": 200,
+                "question": "This command temporarily saves your changes without committing.",
+                "answer": "git stash"
+              },
+              {
+                "value": 400,
+                "question": "This command reapplies commits on top of another base tip.",
+                "answer": "git rebase"
+              },
+              {
+                "value": 600,
+                "question": "This command finds the commit that introduced a bug.",
+                "answer": "git bisect"
+              },
+              {
+                "value": 800,
+                "question": "This command removes untracked files from the working tree.",
+                "answer": "git clean"
+              },
+              {
+                "value": 1000,
+                "question": "This command shows who changed what and when in a file.",
+                "answer": "git blame"
+              }
+            ]
+          },
+          {
+            "name": "gittttt",
+            "questions": [
+              {
+                "value": 200,
+                "question": "A popular branching model for Git.",
+                "answer": "Git Flow"
+              },
+              {
+                "value": 400,
+                "question": "A request to merge code into the main codebase.",
+                "answer": "Pull Request (PR)"
+              },
+              {
+                "value": 600,
+                "question": "A copy of a repository that you manage.",
+                "answer": "Fork"
+              },
+              {
+                "value": 800,
+                "question": "The default branch name in modern Git repositories.",
+                "answer": "main"
+              },
+              {
+                "value": 1000,
+                "question": "A file that specifies intentionally untracked files to ignore.",
+                "answer": ".gitignore"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "9d5dd0e2-517e-4ba0-9253-d55aedab9743": {
+      "name": "Charlotte",
+      "data": {
+        "categories": [
+          {
+            "name": "Category 1",
+            "questions": [
+              {
+                "value": 200,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 400,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 600,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 800,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 1000,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              }
+            ]
+          },
+          {
+            "name": "Category 2",
+            "questions": [
+              {
+                "value": 200,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 400,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 600,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 800,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 1000,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              }
+            ]
+          },
+          {
+            "name": "Category 3",
+            "questions": [
+              {
+                "value": 200,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 400,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 600,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 800,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 1000,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              }
+            ]
+          },
+          {
+            "name": "Category 4",
+            "questions": [
+              {
+                "value": 200,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 400,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 600,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 800,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 1000,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              }
+            ]
+          },
+          {
+            "name": "Category 5",
+            "questions": [
+              {
+                "value": 200,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 400,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 600,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 800,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              },
+              {
+                "value": 1000,
+                "question": "Enter question here...",
+                "answer": "Enter answer here..."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
