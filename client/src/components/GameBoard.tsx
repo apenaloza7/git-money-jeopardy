@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
+import { playBuzz, playCorrect, playWrong } from '../utils/audio';
 
 interface Question {
   value: number;
@@ -43,13 +44,23 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
       setScores(state.players || {});
     });
 
+    socket.on('buzz-winner', () => {
+      playBuzz();
+    });
+
     socket.on('feedback', (data: any) => {
+      if (data.type === 'correct') {
+        playCorrect();
+      } else if (data.type === 'wrong') {
+        playWrong();
+      }
       setFeedback(data);
       setTimeout(() => setFeedback(null), 3000); // Hide after 3s
     });
 
     return () => {
       socket.off('state-update');
+      socket.off('buzz-winner');
       socket.off('feedback');
     };
   }, [socket]);

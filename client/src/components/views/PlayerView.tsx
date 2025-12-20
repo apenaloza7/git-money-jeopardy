@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
+import { playLock, playCorrect, playWrong } from '../../utils/audio';
 
 const socket: Socket = io(`http://${window.location.hostname}:3001`);
 
@@ -25,6 +26,8 @@ export const PlayerView: React.FC = () => {
 
     socket.on('feedback', (data: any) => {
       if (data.playerId === socket.id) {
+        if (data.type === 'correct') playCorrect();
+        else playWrong();
         setFeedback(data);
         setTimeout(() => setFeedback(null), 3000); // Hide after 3s
       }
@@ -50,6 +53,7 @@ export const PlayerView: React.FC = () => {
     if (isPenaltyLocked) return;
 
     if (navigator.vibrate) navigator.vibrate(50); // Haptic feedback
+    playLock();
 
     // If locked (early buzz), apply penalty
     if (isLocked) {
