@@ -10,6 +10,7 @@ export const PlayerView: React.FC = () => {
   const [winner, setWinner] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState<{type: 'correct'|'wrong', points: number} | null>(null);
+  const [isPenaltyLocked, setIsPenaltyLocked] = useState(false);
 
   useEffect(() => {
     socket.on('state-update', (state: any) => {
@@ -45,17 +46,31 @@ export const PlayerView: React.FC = () => {
   };
 
   const handleBuzz = () => {
+    // If penalized, ignore the click
+    if (isPenaltyLocked) return;
+
     if (navigator.vibrate) navigator.vibrate(50); // Haptic feedback
-    if (!isLocked && !winner) {
+
+    // If locked (early buzz), apply penalty
+    if (isLocked) {
+      setIsPenaltyLocked(true);
+      setTimeout(() => setIsPenaltyLocked(false), 2000);
+      return;
+    }
+
+    if (!winner) {
       socket.emit('buzz');
     }
   };
 
   // Determine button state
-  let buttonColor = "bg-red-600 border-red-800"; // Default
+  let buttonColor = "bg-red-600 border-red-800 hover:bg-red-500"; // Default (Active)
   let statusText = "BUZZ";
 
-  if (winner) {
+  if (isPenaltyLocked) {
+    buttonColor = "bg-red-900 border-red-950 cursor-not-allowed opacity-50";
+    statusText = "LOCKED";
+  } else if (winner) {
     if (winner === socket.id) {
       buttonColor = "bg-green-500 border-green-700 animate-pulse";
       statusText = "YOU WON!";
@@ -64,7 +79,8 @@ export const PlayerView: React.FC = () => {
       statusText = "LOCKED";
     }
   } else if (isLocked) {
-    buttonColor = "bg-yellow-600 border-yellow-800 cursor-not-allowed";
+    // Locked by host, but clickable (will trigger penalty)
+    buttonColor = "bg-yellow-600 border-yellow-800 active:bg-yellow-700";
     statusText = "WAIT...";
   }
 
@@ -120,7 +136,7 @@ export const PlayerView: React.FC = () => {
       
       <button 
         onClick={handleBuzz}
-        disabled={isLocked || !!winner}
+        disabled={!!winner || isPenaltyLocked}
         className={`w-72 h-72 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border-8 ${buttonColor} transition-all active:scale-95`}
       >
         <span className="text-4xl font-bold uppercase tracking-widest text-white drop-shadow-md select-none">
@@ -130,6 +146,7 @@ export const PlayerView: React.FC = () => {
 
       <div className="mt-12 text-slate-500 font-mono text-sm text-center">
         {winner && winner !== socket.id ? "Another player buzzed in first." : 
+         isPenaltyLocked ? "PENALTY! Too early!" :
          isLocked && !winner ? "Waiting for Host to unlock..." : 
          "GO! GO! GO!"}
       </div>
