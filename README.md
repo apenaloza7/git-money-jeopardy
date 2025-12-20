@@ -14,10 +14,10 @@ The system is built as a **monorepo-style** project with two main directories:
 ```mermaid
 graph TD
     subgraph Local_Network [Local Network]
-        Server[Node.js Server <br/> (Port 3001)]
-        Storage[(games.json)]
+        Server["Node.js Server <br/> (Port 3001)"]
+        Storage[("games.json")]
         
-        subgraph Frontend_Clients [React Clients <br/> (Port 5173)]
+        subgraph Frontend_Clients ["React Clients <br/> (Port 5173)"]
             HostControl[Host Dashboard]
             GameBoard[Main Game Board]
             Player1[Player Mobile 1]
