@@ -5,8 +5,7 @@ import {
   SERVER_URL, 
   PENALTY_LOCK_DURATION_MS, 
   FEEDBACK_DURATION_MS, 
-  PLAYER_NAME_MAX_LENGTH,
-  HAPTIC_VIBRATION_DURATION_MS 
+  PLAYER_NAME_MAX_LENGTH
 } from '../../constants';
 
 const socket: Socket = io(SERVER_URL);
@@ -59,7 +58,6 @@ export const PlayerView: React.FC = () => {
     // If penalized, ignore the click
     if (isPenaltyLocked) return;
 
-    if (navigator.vibrate) navigator.vibrate(HAPTIC_VIBRATION_DURATION_MS); // Haptic feedback
     playLock();
 
     // If locked (early buzz), apply penalty
