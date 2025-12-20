@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { playLock, playCorrect, playWrong } from '../../utils/audio';
+import { 
+  SERVER_URL, 
+  PENALTY_LOCK_DURATION_MS, 
+  FEEDBACK_DURATION_MS, 
+  PLAYER_NAME_MAX_LENGTH,
+  HAPTIC_VIBRATION_DURATION_MS 
+} from '../../constants';
 
-const socket: Socket = io(`http://${window.location.hostname}:3001`);
+const socket: Socket = io(SERVER_URL);
 
 export const PlayerView: React.FC = () => {
   const [name, setName] = useState('');
@@ -29,7 +36,7 @@ export const PlayerView: React.FC = () => {
         if (data.type === 'correct') playCorrect();
         else playWrong();
         setFeedback(data);
-        setTimeout(() => setFeedback(null), 3000); // Hide after 3s
+        setTimeout(() => setFeedback(null), FEEDBACK_DURATION_MS);
       }
     });
 
@@ -52,13 +59,13 @@ export const PlayerView: React.FC = () => {
     // If penalized, ignore the click
     if (isPenaltyLocked) return;
 
-    if (navigator.vibrate) navigator.vibrate(50); // Haptic feedback
+    if (navigator.vibrate) navigator.vibrate(HAPTIC_VIBRATION_DURATION_MS); // Haptic feedback
     playLock();
 
     // If locked (early buzz), apply penalty
     if (isLocked) {
       setIsPenaltyLocked(true);
-      setTimeout(() => setIsPenaltyLocked(false), 2000);
+      setTimeout(() => setIsPenaltyLocked(false), PENALTY_LOCK_DURATION_MS);
       return;
     }
 
@@ -99,7 +106,7 @@ export const PlayerView: React.FC = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="p-4 rounded-lg bg-slate-800 border border-slate-600 text-white text-lg text-center focus:ring-2 focus:ring-yellow-500 outline-none"
-            maxLength={12}
+            maxLength={PLAYER_NAME_MAX_LENGTH}
           />
           <button 
             type="submit" 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { HOST_PASSWORD } from '../../constants';
 
 export const HostLoginView: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -8,7 +9,7 @@ export const HostLoginView: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin') {
+    if (password === HOST_PASSWORD) {
       localStorage.setItem('host_token', 'true');
       navigate('/host/dashboard');
     } else {

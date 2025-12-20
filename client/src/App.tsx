@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import io, { Socket } from 'socket.io-client';
+import { SERVER_URL } from './constants';
 
 // Views
 import { SplashView } from './components/views/SplashView';
@@ -11,7 +12,7 @@ import { EditorView } from './components/views/EditorView';
 import { GameBoard } from './components/GameBoard';
 
 // Connect to the backend
-const socket: Socket = io(`http://${window.location.hostname}:3001`);
+const socket: Socket = io(SERVER_URL);
 
 // Types (should actully be in a shared types file)
 interface Question {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { playBuzz, playCorrect, playWrong } from '../utils/audio';
+import { FEEDBACK_DURATION_MS } from '../constants';
 
 interface Question {
   value: number;
@@ -55,7 +56,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
         playWrong();
       }
       setFeedback(data);
-      setTimeout(() => setFeedback(null), 3000); // Hide after 3s
+      setTimeout(() => setFeedback(null), FEEDBACK_DURATION_MS);
     });
 
     return () => {

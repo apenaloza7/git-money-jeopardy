@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
+import { SERVER_URL } from '../../constants';
 
-const socket: Socket = io(`http://${window.location.hostname}:3001`);
+const socket: Socket = io(SERVER_URL);
 
 export const EditorView: React.FC = () => {
   const [allBoards, setAllBoards] = useState<any>(null);
