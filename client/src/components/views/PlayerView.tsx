@@ -121,7 +121,7 @@ export const PlayerView: React.FC = () => {
 
   if (!hasJoined) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
+      <div className="fixed inset-0 h-[100dvh] w-full bg-slate-900 text-white flex flex-col items-center justify-center p-4 overscroll-none overflow-hidden">
         <h1 className="text-3xl font-bold mb-8 text-yellow-400">Join Game</h1>
         <form onSubmit={handleJoin} className="flex flex-col gap-4 w-full max-w-xs">
           <input
@@ -144,7 +144,7 @@ export const PlayerView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="fixed inset-0 h-[100dvh] w-full bg-slate-900 text-white flex flex-col items-center justify-center p-4 relative overflow-hidden overscroll-none">
       {/* Feedback Overlay */}
       {feedback && (
         <div className={`absolute inset-0 z-50 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300
