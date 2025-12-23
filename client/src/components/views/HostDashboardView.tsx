@@ -255,8 +255,14 @@ export const HostDashboardView: React.FC = () => {
         <h2 className="text-sm font-bold mb-2 text-slate-400 uppercase tracking-wider">Scoreboard</h2>
         <div className="space-y-2">
           {Object.entries(gameState.players).map(([id, player]: [string, any]) => (
-            <div key={id} className={`flex justify-between items-center p-3 rounded bg-slate-900 ${id === winnerId ? 'border border-yellow-500' : ''}`}>
-              <span className="font-medium">{player.name}</span>
+            <div key={id} className={`flex justify-between items-center p-3 rounded bg-slate-900 
+              ${id === winnerId ? 'border border-yellow-500' : ''}
+              ${!player.online ? 'opacity-50' : ''}
+            `}>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${player.online ? 'bg-green-500' : 'bg-gray-500'}`} title={player.online ? "Online" : "Offline"} />
+                <span className="font-medium">{player.name}</span>
+              </div>
               <span className={`font-mono font-bold ${player.score < 0 ? 'text-red-400' : 'text-green-400'}`}>
                 ${player.score}
               </span>

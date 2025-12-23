@@ -12,6 +12,7 @@ const socket: Socket = io(SERVER_URL);
 
 export const PlayerView: React.FC = () => {
   const [name, setName] = useState('');
+  const [playerId, setPlayerId] = useState<string | null>(null);
   const [hasJoined, setHasJoined] = useState(false);
   const [isLocked, setIsLocked] = useState(true);
   const [winner, setWinner] = useState<string | null>(null);
@@ -20,18 +21,34 @@ export const PlayerView: React.FC = () => {
   const [isPenaltyLocked, setIsPenaltyLocked] = useState(false);
 
   useEffect(() => {
+    // Restore session on mount
+    const storedId = localStorage.getItem('jeopardy_player_id');
+    const storedName = localStorage.getItem('jeopardy_player_name');
+
+    if (storedId && storedName) {
+      setPlayerId(storedId);
+      setName(storedName);
+      setHasJoined(true);
+      socket.emit('join-game', { playerId: storedId, name: storedName });
+    }
+  }, []);
+
+  useEffect(() => {
     socket.on('state-update', (state: any) => {
       setIsLocked(state.isBuzzersLocked);
       setWinner(state.activePlayer);
       
       // Update my score
-      if (socket.id && state.players && state.players[socket.id]) {
-        setScore(state.players[socket.id].score);
+      // We need to know our ID to find our score
+      const myId = playerId || localStorage.getItem('jeopardy_player_id');
+      if (myId && state.players && state.players[myId]) {
+        setScore(state.players[myId].score);
       }
     });
 
     socket.on('feedback', (data: any) => {
-      if (data.playerId === socket.id) {
+      const myId = playerId || localStorage.getItem('jeopardy_player_id');
+      if (data.playerId === myId) {
         if (data.type === 'correct') playCorrect();
         else playWrong();
         setFeedback(data);
@@ -44,13 +61,22 @@ export const PlayerView: React.FC = () => {
       socket.off('state-update');
       socket.off('feedback');
     };
-  }, []);
+  }, [playerId]);
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      socket.emit('join-game', name);
+      // Fallback if crypto.randomUUID is not available (e.g. non-secure context)
+      const newId = typeof crypto !== 'undefined' && crypto.randomUUID 
+        ? crypto.randomUUID() 
+        : `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
+      localStorage.setItem('jeopardy_player_id', newId);
+      localStorage.setItem('jeopardy_player_name', name);
+      
+      setPlayerId(newId);
       setHasJoined(true);
+      socket.emit('join-game', { playerId: newId, name });
     }
   };
 
@@ -80,7 +106,7 @@ export const PlayerView: React.FC = () => {
     buttonColor = "bg-red-900 border-red-950 cursor-not-allowed opacity-50";
     statusText = "LOCKED";
   } else if (winner) {
-    if (winner === socket.id) {
+    if (winner === playerId) {
       buttonColor = "bg-green-500 border-green-700 animate-pulse";
       statusText = "YOU WON!";
     } else {
@@ -154,7 +180,7 @@ export const PlayerView: React.FC = () => {
       </button>
 
       <div className="mt-12 text-slate-500 font-mono text-sm text-center">
-        {winner && winner !== socket.id ? "Another player buzzed in first." : 
+        {winner && winner !== playerId ? "Another player buzzed in first." : 
          isPenaltyLocked ? "PENALTY! Too early!" :
          isLocked && !winner ? "Waiting for Host to unlock..." : 
          "GO! GO! GO!"}

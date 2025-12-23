@@ -87,12 +87,15 @@ loadGameData();
 
 // --- GAME STATE ---
 let gameState = {
-  players: {}, // { socketId: { name: "Player 1", score: 0 } }
-  activePlayer: null, // socketId
+  players: {}, // { playerId: { id, name, score, online } }
+  activePlayer: null, // playerId
   isBuzzersLocked: true, 
   currentQuestion: null, // { categoryIndex, questionIndex, value }
   playedQuestions: [], // ["0-0", "0-1"]
 };
+
+// Map transient socket IDs to persistent player IDs
+const socketIdToPlayerId = {};
 
 io.on('connection', (socket) => {
   console.log(`User Connected: ${socket.id}`);
@@ -107,23 +110,45 @@ io.on('connection', (socket) => {
   });
 
   // 2. Player Joins
-  socket.on('join-game', (playerName) => {
-    gameState.players[socket.id] = {
-      name: playerName || `Player ${socket.id.substr(0,4)}`,
-      score: 0
-    };
+  socket.on('join-game', ({ playerId, name }) => {
+    // Basic validation
+    if (!playerId) return;
+
+    // Map this socket to the player ID
+    socketIdToPlayerId[socket.id] = playerId;
+
+    // Create or Update Player
+    if (!gameState.players[playerId]) {
+      // New Player
+      gameState.players[playerId] = {
+        id: playerId,
+        name: name || `Player ${playerId.substr(0,4)}`,
+        score: 0,
+        online: true
+      };
+    } else {
+      // Rejoining Player
+      gameState.players[playerId].online = true;
+      // Optionally update name if they changed it, but let's stick to the first name or update it?
+      // Let's update it if provided and different
+      if (name) gameState.players[playerId].name = name;
+    }
+
     io.emit('state-update', gameState);
   });
 
   // 3. Player Buzzes
   socket.on('buzz', () => {
-    if (!gameState.isBuzzersLocked && !gameState.activePlayer) {
-      gameState.activePlayer = socket.id;
+    const playerId = socketIdToPlayerId[socket.id];
+    
+    // Only allow buzz if we know who this is
+    if (playerId && !gameState.isBuzzersLocked && !gameState.activePlayer) {
+      gameState.activePlayer = playerId;
       gameState.isBuzzersLocked = true;
       
       io.emit('buzz-winner', { 
-        winnerId: socket.id, 
-        winnerName: gameState.players[socket.id]?.name 
+        winnerId: playerId, 
+        winnerName: gameState.players[playerId]?.name 
       });
       
       io.emit('state-update', gameState);
@@ -291,8 +316,12 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log(`User Disconnected: ${socket.id}`);
-    if (gameState.players[socket.id]) {
-      delete gameState.players[socket.id];
+    
+    const playerId = socketIdToPlayerId[socket.id];
+    if (playerId && gameState.players[playerId]) {
+      // Mark as offline instead of deleting
+      gameState.players[playerId].online = false;
+      delete socketIdToPlayerId[socket.id];
       io.emit('state-update', gameState);
     }
   });
