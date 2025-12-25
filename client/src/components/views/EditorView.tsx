@@ -53,7 +53,10 @@ export const EditorView: React.FC = () => {
     if (!currentGameData) return;
     const q = currentGameData.categories[cIdx].questions[qIdx];
     setEditingCell({ cIdx, qIdx });
-    setEditForm({ question: q.question, answer: q.answer, value: q.value });
+    // Clear placeholder text when opening the edit form
+    const question = q.question === "Enter question here..." ? "" : q.question;
+    const answer = q.answer === "Enter answer here..." ? "" : q.answer;
+    setEditForm({ question, answer, value: q.value });
   };
 
   const handleCategoryChange = (cIdx: number, newName: string) => {
@@ -283,6 +286,7 @@ export const EditorView: React.FC = () => {
                   value={editForm.question}
                   onChange={e => setEditForm({...editForm, question: e.target.value})}
                   className="w-full bg-slate-900 border border-slate-600 p-4 rounded text-white h-32 focus:ring-2 focus:ring-green-500 outline-none text-lg"
+                  placeholder="Enter question here..."
                   autoFocus
                 />
               </div>
@@ -295,6 +299,7 @@ export const EditorView: React.FC = () => {
                     value={editForm.answer}
                     onChange={e => setEditForm({...editForm, answer: e.target.value})}
                     className="w-full bg-slate-900 border border-slate-600 p-4 rounded text-white focus:ring-2 focus:ring-green-500 outline-none"
+                    placeholder="Enter answer here..."
                   />
                 </div>
 
