@@ -16,14 +16,23 @@ This is the frontend client for the Git Money Jeopardy game, built with React, T
 
 ```
 client/src/
+├── assets/              # Static assets (e.g. logos)
 ├── components/
-│   ├── views/           # Top-level page components
+│   ├── theme/           # Shared layout + Tailwind style helpers
+│   │   ├── JeopardyShell.tsx
+│   │   └── theme.ts
+│   ├── views/           # Route-level page components
 │   │   ├── SplashView.tsx        # Landing page
 │   │   ├── HostLoginView.tsx     # Host authentication
 │   │   ├── HostDashboardView.tsx # Game control panel for the host
 │   │   ├── PlayerView.tsx        # Interface for players (buzzer/answers)
 │   │   └── EditorView.tsx        # Game data editor
-│   └── GameBoard.tsx    # The main Jeopardy board display
+│   ├── GameBoard.tsx    # The main Jeopardy board display
+│   └── RulesModal.tsx   # In-game rules/help modal
+├── utils/
+│   └── audio.ts         # Sound effects helpers
+├── constants.ts         # Shared constants (server URL, timings, etc.)
+├── App.css              # App-level styles
 ├── App.tsx              # Main application component, routing, and socket setup
 ├── main.tsx             # Entry point
 └── index.css            # Global styles (Tailwind directives)
@@ -35,7 +44,7 @@ client/src/
 
 The application uses `react-router-dom` to manage different views:
 
-- `/` - **Splash View**: Entry point for users. Shows QR codes/links for **Players** and **Host**, and quick actions.
+- `/` - **Splash View**: Entry point for users.
 - `/board` - **Game Board**: The main display screen showing categories and clues. Intended to be projected or shared on a big screen.
 - `/play` - **Player View**: Mobile-friendly interface for players to buzz in and answer questions.
 - `/editor` - **Editor**: Tool for creating and modifying game files.
@@ -67,7 +76,3 @@ The application relies on **Socket.io** for real-time synchronization with the s
     ```bash
     npm run build
     ```
-
-## Host Login
-
-The host password is configured client-side in `src/constants.ts` (`HOST_PASSWORD`). The default is **`admin`**.
