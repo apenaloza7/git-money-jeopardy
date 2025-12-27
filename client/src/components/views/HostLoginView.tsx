@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HOST_PASSWORD } from '../../constants';
+import { JeopardyShell } from '../theme/JeopardyShell';
+import { buttonPrimary, focusRingGold, panelGold } from '../theme/theme';
 
 export const HostLoginView: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -19,9 +21,12 @@ export const HostLoginView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
-      <div className="bg-slate-800 p-8 rounded-xl shadow-2xl w-full max-w-md border border-slate-700">
-        <h2 className="text-3xl font-bold mb-6 text-center text-red-400">Host Access</h2>
+    <JeopardyShell>
+      <div className="min-h-screen text-white flex items-center justify-center p-4">
+      <div className={[panelGold, 'p-8 w-full max-w-md'].join(' ')}>
+        <h2 className="font-display text-4xl font-extrabold mb-6 text-center text-yellow-400 tracking-wider">
+          Host Access
+        </h2>
         
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
@@ -30,7 +35,10 @@ export const HostLoginView: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-4 bg-slate-900 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 outline-none transition-all"
+              className={[
+                'w-full p-4 bg-slate-950/40 border border-yellow-400/20 rounded-lg text-white transition-all shadow-inner',
+                focusRingGold,
+              ].join(' ')}
               placeholder="Enter host password"
               autoFocus
             />
@@ -44,12 +52,13 @@ export const HostLoginView: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-lg shadow-lg transition-colors text-lg"
+            className={['w-full py-4 rounded-lg text-lg', buttonPrimary].join(' ')}
           >
             Login
           </button>
         </form>
       </div>
     </div>
+    </JeopardyShell>
   );
 };

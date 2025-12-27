@@ -1,4 +1,5 @@
 import React from 'react';
+import { buttonPrimary, panel, focusRingGold } from './theme/theme';
 
 interface RulesModalProps {
   isOpen: boolean;
@@ -14,14 +15,14 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
       onClick={onClose}
     >
       <div 
-        className="bg-slate-800 border border-slate-600 rounded-lg max-w-md w-full max-h-[80vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
+        className={['max-w-md w-full max-h-[80vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 bg-[#07154a] border border-yellow-400/20 rounded-xl', panel].join(' ')}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-lg">
-          <h2 className="text-xl font-bold text-yellow-400">Game Rules</h2>
+        <div className="p-4 border-b border-yellow-400/10 flex justify-between items-center bg-slate-950/20 rounded-t-xl">
+          <h2 className="font-display text-2xl font-extrabold text-yellow-400 tracking-wide">Game Rules</h2>
           <button 
             onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-700"
+            className={['text-slate-200/70 hover:text-white transition-colors p-2 rounded-md hover:bg-slate-950/30', focusRingGold].join(' ')}
             aria-label="Close rules"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,10 +60,10 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
           </section>
         </div>
 
-        <div className="p-4 border-t border-slate-700 bg-slate-800/50 rounded-b-lg">
+        <div className="p-4 border-t border-yellow-400/10 bg-slate-950/20 rounded-b-xl">
           <button 
             onClick={onClose}
-            className="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white rounded transition-colors font-medium"
+            className={['w-full py-3 rounded text-base', buttonPrimary].join(' ')}
           >
             Got it!
           </button>

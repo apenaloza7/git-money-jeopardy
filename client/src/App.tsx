@@ -10,6 +10,7 @@ import { HostDashboardView } from './components/views/HostDashboardView';
 import { PlayerView } from './components/views/PlayerView';
 import { EditorView } from './components/views/EditorView';
 import { GameBoard } from './components/GameBoard';
+import { JeopardyShell } from './components/theme/JeopardyShell';
 
 // Connect to the backend
 const socket: Socket = io(SERVER_URL);
@@ -81,20 +82,28 @@ function App() {
         
         <Route path="/board" element={
           gameData ? (
-            <div className="min-h-screen bg-slate-900 text-white p-4 overflow-hidden h-screen flex flex-col">
-               <header className="flex justify-between items-center mb-4">
-                <h1 className="text-3xl font-bold text-yellow-400">Git Money Jeopardy</h1>
-                <div className="flex items-center space-x-2">
-                  <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                  <span className="text-sm font-mono">{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
+            <JeopardyShell className="h-screen" withContainer={false}>
+              <div className="min-h-screen text-white p-4 overflow-hidden h-screen flex flex-col">
+                 <header className="flex justify-between items-center mb-4">
+                  <h1 className="font-display text-4xl font-extrabold text-yellow-400 tracking-wider drop-shadow">
+                    Git Money Jeopardy
+                  </h1>
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <span className="text-sm font-mono">{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
+                  </div>
+                </header>
+                <div className="flex-1 flex items-center h-full">
+                   <GameBoard gameData={gameData} socket={socket} />
                 </div>
-              </header>
-              <div className="flex-1 flex items-center h-full">
-                 <GameBoard gameData={gameData} socket={socket} />
               </div>
-            </div>
+            </JeopardyShell>
           ) : (
-            <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">Loading Board...</div>
+            <JeopardyShell withContainer>
+              <div className="min-h-screen text-white flex items-center justify-center">
+                Loading Board...
+              </div>
+            </JeopardyShell>
           )
         } />
 

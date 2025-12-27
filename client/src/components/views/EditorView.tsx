@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { SERVER_URL } from '../../constants';
+import { JeopardyShell } from '../theme/JeopardyShell';
+import { buttonPrimary, buttonSecondary, focusRingGold, panel } from '../theme/theme';
 
 const socket: Socket = io(SERVER_URL);
 
@@ -130,14 +132,25 @@ export const EditorView: React.FC = () => {
     socket.emit('switch-board', id);
   };
 
-  if (!allBoards) return <div className="p-8 text-white">Loading Editor...</div>;
+  if (!allBoards) {
+    return (
+      <JeopardyShell withContainer>
+        <div className={[panel, 'p-8'].join(' ')}>
+          <h1 className="font-display text-3xl font-extrabold text-yellow-400 tracking-wider">
+            Loading Editor...
+          </h1>
+        </div>
+      </JeopardyShell>
+    );
+  }
 
   return (
-    <div className="h-screen bg-slate-900 text-white flex overflow-hidden">
+    <JeopardyShell className="h-screen">
+    <div className="h-screen text-white flex overflow-hidden">
       {/* Sidebar - Board List */}
-      <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col shrink-0 z-20 shadow-xl">
-        <div className="p-4 border-b border-slate-700 bg-slate-800">
-             <h2 className="text-xl font-bold text-slate-300">Saved Boards</h2>
+      <div className="w-64 bg-[#06103a]/80 border-r border-yellow-400/10 flex flex-col shrink-0 z-20 shadow-xl">
+        <div className="p-4 border-b border-yellow-400/10 bg-[#06103a]/80">
+             <h2 className="font-display text-2xl font-extrabold text-slate-100 tracking-wide">Saved Boards</h2>
         </div>
         
         <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
@@ -146,7 +159,7 @@ export const EditorView: React.FC = () => {
               key={id}
               onClick={() => setSelectedBoardId(id)}
               className={`p-3 rounded cursor-pointer transition-colors relative group
-                ${selectedBoardId === id ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'}
+                ${selectedBoardId === id ? 'bg-yellow-500/15 text-yellow-200 shadow-md border border-yellow-400/25' : 'bg-[#0a1c5a]/40 text-slate-200/80 hover:bg-[#0a1c5a]/60 border border-transparent'}
               `}
             >
               <div className="font-bold truncate pr-6 text-sm">{board.name}</div>
@@ -165,16 +178,16 @@ export const EditorView: React.FC = () => {
           ))}
         </div>
         
-        <div className="p-4 border-t border-slate-700 bg-slate-800/50 space-y-2">
+        <div className="p-4 border-t border-yellow-400/10 bg-[#06103a]/60 space-y-2">
             <button 
             onClick={createNewBoard}
-            className="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded font-bold text-sm shadow-lg hover:shadow-green-900/20 transition-all active:scale-95"
+            className={['w-full py-2 rounded text-sm', buttonPrimary].join(' ')}
             >
             + New Board
             </button>
             <button 
             onClick={() => navigate('/')}
-            className="w-full text-slate-500 hover:text-white text-sm py-2 transition-colors flex items-center justify-center gap-2"
+            className="w-full text-slate-200/70 hover:text-white text-sm py-2 transition-colors flex items-center justify-center gap-2"
             >
             <span>←</span> Exit to Home
             </button>
@@ -182,17 +195,20 @@ export const EditorView: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-slate-900/50">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {selectedBoardId && currentGameData ? (
           <>
             {/* Editor Header */}
-            <div className="flex justify-between items-center bg-slate-800 p-4 border-b border-slate-700 shrink-0 shadow-md z-10">
+            <div className="flex justify-between items-center bg-[#0a1c5a]/55 p-4 border-b border-yellow-400/10 shrink-0 shadow-md z-10">
               <div className="flex-1 mr-8">
                 <input
                    value={currentBoardName}
                    onChange={(e) => handleBoardNameChange(e.target.value)}
                    onBlur={saveBoardName}
-                   className="text-2xl font-bold text-white bg-transparent border-b border-transparent hover:border-slate-500 focus:border-green-500 outline-none transition-colors w-full px-2 py-1 rounded hover:bg-slate-700/50"
+                   className={[
+                     'text-2xl font-bold text-white bg-transparent border-b border-transparent hover:border-yellow-400/30 focus:border-yellow-400 outline-none transition-colors w-full px-2 py-1 rounded hover:bg-slate-950/20',
+                     focusRingGold,
+                   ].join(' ')}
                    placeholder="Enter Board Name"
                 />
               </div>
@@ -213,7 +229,7 @@ export const EditorView: React.FC = () => {
                  {activeBoardId !== selectedBoardId ? (
                      <button 
                        onClick={() => switchActiveBoard(selectedBoardId)}
-                       className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded text-xs font-bold uppercase tracking-wide shadow-lg hover:shadow-yellow-900/20 transition-all active:scale-95"
+                       className={['px-4 py-2 rounded text-xs uppercase tracking-wide', buttonPrimary].join(' ')}
                      >
                        Set Active
                      </button>
@@ -234,7 +250,10 @@ export const EditorView: React.FC = () => {
                             <textarea
                             value={c.name}
                             onChange={(e) => handleCategoryChange(cIdx, e.target.value)}
-                            className="w-full h-full bg-blue-900/80 text-center font-bold text-white p-3 rounded-lg border border-blue-700 focus:ring-2 focus:ring-yellow-400 outline-none uppercase resize-none shadow-md text-sm md:text-base flex items-center justify-center placeholder-blue-300/50"
+                            className={[
+                              'w-full h-full bg-blue-900/70 text-center font-bold text-white p-3 rounded-lg border border-yellow-400/15 outline-none uppercase resize-none shadow-md text-sm md:text-base flex items-center justify-center placeholder-blue-300/50',
+                              focusRingGold,
+                            ].join(' ')}
                             placeholder="CATEGORY NAME"
                             />
                         </div>
@@ -246,7 +265,7 @@ export const EditorView: React.FC = () => {
                         <button
                             key={`${cIdx}-${r}`}
                             onClick={() => handleEditClick(cIdx, r)}
-                            className="w-full h-full bg-slate-800 hover:bg-slate-700 p-2 rounded-lg border border-slate-700 flex flex-col items-center justify-center text-center group transition-all hover:border-blue-500 hover:shadow-xl hover:scale-[1.02] hover:z-10 relative overflow-hidden"
+                            className="w-full h-full bg-[#0a1c5a]/55 hover:bg-[#0a1c5a]/70 p-2 rounded-lg border border-yellow-400/10 flex flex-col items-center justify-center text-center group transition-all hover:border-yellow-400/30 hover:shadow-xl hover:scale-[1.02] hover:z-10 relative overflow-hidden"
                         >
                             <span className="text-yellow-400 font-bold mb-1 text-xl drop-shadow-md">${c.questions[r].value}</span>
                             <div className="w-full px-2">
@@ -276,8 +295,8 @@ export const EditorView: React.FC = () => {
       {/* Edit Modal */}
       {editingCell && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-slate-800 p-8 rounded-xl w-full max-w-2xl border border-slate-600 shadow-2xl animate-in zoom-in duration-200">
-            <h2 className="text-2xl font-bold mb-6 text-yellow-400">Edit Question</h2>
+          <div className="bg-[#07154a] p-8 rounded-xl w-full max-w-2xl border border-yellow-400/20 shadow-2xl animate-in zoom-in duration-200">
+            <h2 className="font-display text-3xl font-extrabold mb-6 text-yellow-400 tracking-wide">Edit Question</h2>
             
             <form onSubmit={handleSaveForm} className="space-y-4">
               <div>
@@ -285,7 +304,10 @@ export const EditorView: React.FC = () => {
                 <textarea
                   value={editForm.question}
                   onChange={e => setEditForm({...editForm, question: e.target.value})}
-                  className="w-full bg-slate-900 border border-slate-600 p-4 rounded text-white h-32 focus:ring-2 focus:ring-green-500 outline-none text-lg"
+                  className={[
+                    'w-full bg-slate-950/40 border border-yellow-400/15 p-4 rounded text-white h-32 outline-none text-lg',
+                    focusRingGold,
+                  ].join(' ')}
                   placeholder="Enter question here..."
                   autoFocus
                 />
@@ -298,7 +320,10 @@ export const EditorView: React.FC = () => {
                     type="text"
                     value={editForm.answer}
                     onChange={e => setEditForm({...editForm, answer: e.target.value})}
-                    className="w-full bg-slate-900 border border-slate-600 p-4 rounded text-white focus:ring-2 focus:ring-green-500 outline-none"
+                    className={[
+                      'w-full bg-slate-950/40 border border-yellow-400/15 p-4 rounded text-white outline-none',
+                      focusRingGold,
+                    ].join(' ')}
                     placeholder="Enter answer here..."
                   />
                 </div>
@@ -309,7 +334,10 @@ export const EditorView: React.FC = () => {
                     type="number"
                     value={editForm.value}
                     onChange={e => setEditForm({...editForm, value: parseInt(e.target.value)})}
-                    className="w-full bg-slate-900 border border-slate-600 p-4 rounded text-white focus:ring-2 focus:ring-green-500 outline-none"
+                    className={[
+                      'w-full bg-slate-950/40 border border-yellow-400/15 p-4 rounded text-white outline-none',
+                      focusRingGold,
+                    ].join(' ')}
                   />
                 </div>
               </div>
@@ -318,13 +346,13 @@ export const EditorView: React.FC = () => {
                 <button 
                   type="button"
                   onClick={() => setEditingCell(null)}
-                  className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded font-bold transition-colors"
+                  className={['flex-1 py-3 rounded transition-colors', buttonSecondary].join(' ')}
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 bg-green-600 hover:bg-green-500 text-white py-3 rounded font-bold shadow-lg shadow-green-900/20 transition-all hover:scale-105"
+                  className={['flex-1 py-3 rounded transition-all hover:scale-[1.02]', buttonPrimary].join(' ')}
                 >
                   Save Changes
                 </button>
@@ -334,5 +362,6 @@ export const EditorView: React.FC = () => {
         </div>
       )}
     </div>
+    </JeopardyShell>
   );
 };

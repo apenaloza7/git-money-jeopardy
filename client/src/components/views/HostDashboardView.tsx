@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { SERVER_URL } from '../../constants';
+import { JeopardyShell } from '../theme/JeopardyShell';
+import { panel, panelGold, buttonPrimary, buttonSecondary } from '../theme/theme';
 
 const socket: Socket = io(SERVER_URL);
 
@@ -74,14 +76,18 @@ export const HostDashboardView: React.FC = () => {
 
   if (!gameState || !gameData) {
     return (
-      <div className="p-8 text-white">
-        <h1 className="text-xl font-bold mb-4">Connecting to Host...</h1>
-        <div className="text-sm font-mono text-slate-400">
-          Socket: {socket.connected ? "Connected" : "Connecting..."}<br/>
-          Game State: {gameState ? "Loaded" : "Waiting"}<br/>
-          Game Data: {gameData ? "Loaded" : "Waiting"}
+      <JeopardyShell withContainer>
+        <div className={[panel, 'p-8'].join(' ')}>
+          <h1 className="font-display text-3xl font-extrabold mb-4 text-yellow-400 tracking-wider">
+            Connecting to Host...
+          </h1>
+          <div className="text-sm font-mono text-slate-200/70">
+            Socket: {socket.connected ? "Connected" : "Connecting..."}<br/>
+            Game State: {gameState ? "Loaded" : "Waiting"}<br/>
+            Game Data: {gameData ? "Loaded" : "Waiting"}
+          </div>
         </div>
-      </div>
+      </JeopardyShell>
     );
   }
 
@@ -94,32 +100,33 @@ export const HostDashboardView: React.FC = () => {
   const winnerName = winnerId ? gameState.players[winnerId]?.name : null;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-4 pb-24">
+    <JeopardyShell>
+    <div className="min-h-screen text-white p-4 pb-24">
       {/* HEADER CONTROLS */}
-      <div className="flex justify-between items-center mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <div className={['flex justify-between items-center mb-6 p-4', panel].join(' ')}>
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/')} className="text-slate-400 hover:text-white font-bold text-sm">
             ← Exit
           </button>
-          <h1 className="text-xl font-bold text-slate-200">Host Controls</h1>
+          <h1 className="font-display text-2xl font-extrabold text-slate-100 tracking-wide">Host Controls</h1>
         </div>
         
         <div className="flex gap-2">
            <div className="relative">
              <button 
                onClick={() => setShowBoardSelect(!showBoardSelect)}
-               className="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded font-bold text-sm"
+               className={['px-4 py-2 rounded text-sm', buttonSecondary].join(' ')}
              >
                Change Board ▾
              </button>
              {showBoardSelect && allBoards && (
-               <div className="absolute right-0 top-12 w-64 bg-slate-800 border border-slate-600 rounded shadow-xl z-50 overflow-hidden">
-                 <div className="p-2 text-xs text-slate-400 uppercase font-bold bg-slate-900">Select Board</div>
+               <div className="absolute right-0 top-12 w-64 bg-[#07154a] border border-yellow-400/20 rounded shadow-xl z-50 overflow-hidden">
+                 <div className="p-2 text-xs text-slate-200/70 uppercase font-bold bg-[#06103a]">Select Board</div>
                  {Object.entries(allBoards.boards).map(([id, board]: [string, any]) => (
                    <button
                      key={id}
                      onClick={() => switchBoard(id)}
-                     className={`w-full text-left px-4 py-3 hover:bg-slate-700 border-b border-slate-700 last:border-0
+                     className={`w-full text-left px-4 py-3 hover:bg-[#0a1c5a]/70 border-b border-yellow-400/10 last:border-0
                        ${allBoards.activeBoardId === id ? 'bg-blue-900/30 text-blue-300' : 'text-slate-300'}
                      `}
                    >
@@ -141,12 +148,12 @@ export const HostDashboardView: React.FC = () => {
 
       {/* --- ACTIVE QUESTION CONTROL PANEL --- */}
       {currentQ && activeQuestionData ? (
-        <div className="bg-slate-800 p-6 rounded-xl shadow-2xl border-2 border-yellow-500 mb-8 sticky top-4 z-40">
+        <div className={[panelGold, 'p-6 mb-8 sticky top-4 z-40'].join(' ')}>
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-yellow-400 font-bold uppercase tracking-wider text-sm">Active Clue (${activeQuestionData.value})</h2>
               <p className="text-xl font-serif mt-2">{activeQuestionData.question}</p>
-              <p className="text-green-400 font-bold mt-2 bg-slate-900 p-2 rounded inline-block">
+              <p className="text-green-200 font-bold mt-2 bg-slate-950/40 border border-yellow-400/10 p-2 rounded inline-block">
                 Answer: {activeQuestionData.answer}
               </p>
             </div>
@@ -159,7 +166,7 @@ export const HostDashboardView: React.FC = () => {
               </button>
               <button 
                 onClick={() => closeQuestion(false)}
-                className="bg-slate-700 hover:bg-slate-600 text-slate-300 px-4 py-2 rounded text-sm font-bold"
+                className={['px-4 py-2 rounded text-sm', buttonSecondary].join(' ')}
               >
                 Close (Keep Unplayed)
               </button>
@@ -251,7 +258,7 @@ export const HostDashboardView: React.FC = () => {
       )}
 
       {/* Players List (Always Visible) */}
-      <div className="bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700">
+      <div className={[panel, 'p-4'].join(' ')}>
         <h2 className="text-sm font-bold mb-2 text-slate-400 uppercase tracking-wider">Scoreboard</h2>
         <div className="space-y-2">
           {Object.entries(gameState.players).map(([id, player]: [string, any]) => (
@@ -271,5 +278,6 @@ export const HostDashboardView: React.FC = () => {
         </div>
       </div>
     </div>
+    </JeopardyShell>
   );
 };

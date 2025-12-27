@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { RulesModal } from '../RulesModal';
 import { playLock, playCorrect, playWrong } from '../../utils/audio';
+import { JeopardyShell } from '../theme/JeopardyShell';
+import { buttonPrimary, focusRingGold, panelGold } from '../theme/theme';
 import { 
   SERVER_URL, 
   PENALTY_LOCK_DURATION_MS, 
@@ -123,30 +125,45 @@ export const PlayerView: React.FC = () => {
 
   if (!hasJoined) {
     return (
-      <div className="fixed inset-0 h-dvh w-full bg-slate-900 text-white flex flex-col items-center justify-center p-4 overscroll-none overflow-hidden">
-        <h1 className="text-3xl font-bold mb-8 text-yellow-400">Join Game</h1>
-        <form onSubmit={handleJoin} className="flex flex-col gap-4 w-full max-w-xs">
-          <input
-            type="text"
-            placeholder="Enter Your Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="p-4 rounded-lg bg-slate-800 border border-slate-600 text-white text-lg text-center focus:ring-2 focus:ring-yellow-500 outline-none"
-            maxLength={PLAYER_NAME_MAX_LENGTH}
-          />
-          <button 
-            type="submit" 
-            className="bg-blue-600 text-white font-bold py-4 rounded-lg shadow-lg hover:bg-blue-500 transition-colors"
-          >
-            ENTER
-          </button>
-        </form>
-      </div>
+      <JeopardyShell>
+        <div className="min-h-screen w-full flex items-center justify-center p-4">
+          <div className={[panelGold, 'w-full max-w-md p-8'].join(' ')}>
+            <h1 className="font-display text-4xl font-extrabold text-yellow-400 text-center tracking-wider drop-shadow mb-6">
+              Join Game
+            </h1>
+
+            <form onSubmit={handleJoin} className="flex flex-col gap-4">
+              <label className="text-slate-200/80 text-sm font-semibold text-center">
+                Your name
+              </label>
+              <input
+                type="text"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={[
+                  'p-4 rounded-lg bg-slate-950/40 border border-yellow-400/20 text-white text-lg text-center shadow-inner',
+                  focusRingGold,
+                ].join(' ')}
+                maxLength={PLAYER_NAME_MAX_LENGTH}
+                autoFocus
+              />
+              <button
+                type="submit"
+                className={['py-4 rounded-lg text-lg', buttonPrimary].join(' ')}
+              >
+                Enter
+              </button>
+            </form>
+          </div>
+        </div>
+      </JeopardyShell>
     );
   }
 
   return (
-    <div className="fixed inset-0 h-dvh w-full bg-slate-900 text-white flex flex-col items-center justify-center p-4 overflow-hidden overscroll-none">
+    <JeopardyShell>
+    <div className="min-h-screen w-full text-white flex flex-col items-center justify-center p-4 overflow-hidden overscroll-none relative">
       {/* Feedback Overlay */}
       {feedback && (
         <div className={`absolute inset-0 z-50 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300
@@ -197,5 +214,6 @@ export const PlayerView: React.FC = () => {
 
       <RulesModal isOpen={showRules} onClose={() => setShowRules(false)} />
     </div>
+    </JeopardyShell>
   );
 };

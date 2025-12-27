@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { playBuzz, playCorrect, playWrong } from '../utils/audio';
 import { FEEDBACK_DURATION_MS } from '../constants';
+import { panel } from './theme/theme';
 
 interface Question {
   value: number;
@@ -93,11 +94,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
 
       {/* 1. Active Question Overlay (Full Screen) */}
       {activeQuestionData && (
-        <div className="absolute inset-0 bg-blue-900 z-40 flex flex-col items-center justify-center p-12 text-center animate-in fade-in duration-300">
-           <div className="text-yellow-400 font-bold text-4xl mb-8 uppercase tracking-widest border-b-4 border-yellow-500 pb-2">
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center p-10 md:p-12 text-center animate-in fade-in duration-300 bg-gradient-to-b from-[#0b1b5a] via-[#06103a] to-[#020617]">
+           <div className="font-display text-yellow-400 font-extrabold text-3xl md:text-4xl mb-8 uppercase tracking-widest border-b-4 border-yellow-500 pb-2 drop-shadow">
              {gameData.categories[currentQuestion!.categoryIndex].name} — ${activeQuestionData.value}
            </div>
-           <div className="text-white text-6xl font-serif font-bold leading-tight drop-shadow-md max-w-5xl">
+           <div className="text-white text-4xl md:text-6xl font-serif font-bold leading-tight drop-shadow-md max-w-5xl">
              {activeQuestionData.question}
            </div>
         </div>
@@ -148,7 +149,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
 
       {/* 4. Score Footer */}
       {Object.keys(scores).length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t-4 border-yellow-500 p-4 flex justify-center gap-8 z-30 shadow-2xl backdrop-blur">
+        <div className={['fixed bottom-0 left-0 right-0 p-4 flex justify-center gap-8 z-30 shadow-2xl backdrop-blur border-t-4 border-yellow-500 bg-[#06103a]/85', panel].join(' ')}>
            {Object.values(scores).map((player: any, idx) => (
              <div key={idx} className="flex flex-col items-center min-w-[120px]">
                <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">{player.name}</div>
