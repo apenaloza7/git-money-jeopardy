@@ -76,7 +76,7 @@ export const HostDashboardView: React.FC = () => {
 
   if (!gameState || !gameData) {
     return (
-      <JeopardyShell withContainer>
+      <JeopardyShell withContainer backgroundMode="viewport">
         <div className={[panel, 'p-8'].join(' ')}>
           <h1 className="font-display text-3xl font-extrabold mb-4 text-yellow-400 tracking-wider">
             Connecting to Host...
@@ -100,7 +100,7 @@ export const HostDashboardView: React.FC = () => {
   const winnerName = winnerId ? gameState.players[winnerId]?.name : null;
 
   return (
-    <JeopardyShell>
+    <JeopardyShell backgroundMode="viewport">
     <div className="min-h-screen text-white p-4 pb-24">
       {/* HEADER CONTROLS */}
       <div className={['flex justify-between items-center mb-6 p-4', panel].join(' ')}>

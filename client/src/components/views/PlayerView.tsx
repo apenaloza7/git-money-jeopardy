@@ -125,7 +125,7 @@ export const PlayerView: React.FC = () => {
 
   if (!hasJoined) {
     return (
-      <JeopardyShell>
+      <JeopardyShell backgroundMode="viewport">
         <div className="min-h-screen w-full flex items-center justify-center p-4">
           <div className={[panelGold, 'w-full max-w-md p-8'].join(' ')}>
             <h1 className="font-display text-4xl font-extrabold text-yellow-400 text-center tracking-wider drop-shadow mb-6">
@@ -162,7 +162,7 @@ export const PlayerView: React.FC = () => {
   }
 
   return (
-    <JeopardyShell>
+    <JeopardyShell backgroundMode="viewport">
     <div className="min-h-screen w-full text-white flex flex-col items-center justify-center p-4 overflow-hidden overscroll-none relative">
       {/* Feedback Overlay */}
       {feedback && (
