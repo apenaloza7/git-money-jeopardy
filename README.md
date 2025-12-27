@@ -68,9 +68,9 @@ The server handles all game logic and data storage.
 ```bash
 cd server
 npm install
-node index.js
+npm run dev
 ```
-*The server will start on port `3001`.*
+*The server starts on port `3001` and binds to `0.0.0.0` for LAN play.*
 
 ### 2. Start the Client
 The client provides the UI for the host, board, and players.
@@ -86,26 +86,28 @@ npm run dev
 
 ## How to Play
 
-1. **Host**: Open the client URL (e.g., `http://localhost:5173/host`) to log in and access the **Dashboard**.
-2. **Main Screen**: Open `http://localhost:5173/board` on a TV or large monitor. This is what the players see.
-3. **Players**: Players scan a QR code (provided on the Splash screen or Board) or navigate to `http://<YOUR_IP>:5173/play` on their phones.
-4. **Game Flow**:
-   - Host selects a clue on the Dashboard.
-   - Question appears on the Board.
-   - Host "Unlocks Buzzers".
-   - Players race to press their buzzer.
-   - First player's name flashes on the Board.
-   - Host marks answer Correct or Wrong.
+1. **Open the Splash page**: On the machine running the game, open `http://localhost:5173/` to get **QR codes + links** for players and host.
+2. **Main Screen (Big Board)**: Open `http://localhost:5173/board` on a TV / projector / second monitor.
+3. **Host**: Open `http://localhost:5173/host` and log in to reach `http://localhost:5173/host/dashboard`.
+   - The default host password is **`admin`** (configured in `client/src/constants.ts`).
+   - This is intentionally lightweight for local/LAN play (it is not secure auth).
+4. **Players**: Players join from phones at `http://<YOUR_IP>:5173/play` (or scan the QR code on `/`), enter a name, and wait for the host.
+5. **Game Flow**:
+   - Host selects a clue from the grid (this opens the clue on the Big Board).
+   - Host clicks **Unlock Buzzers**.
+   - Players race to press **BUZZ** (first buzz wins; others lock out).
+   - Host awards **Correct (+$value)** or **Wrong (-$value)**.
+   - Host closes the clue and optionally marks it **played**.
 
 ## Data Structure
 
-Game boards are stored in `server/games.json`. You can edit them via the `/editor` route in the application or by manually modifying the JSON file (server restart required for manual edits).
+Game boards are stored in `server/games.json`. You can edit them via the `/editor` route in the application (changes are saved to disk by the server).
 
 ```json
 {
-  "activeBoardId": "uuid-string",
+  "activeBoardId": "default",
   "boards": {
-    "uuid-string": {
+    "default": {
       "name": "My Custom Game",
       "data": {
         "categories": [

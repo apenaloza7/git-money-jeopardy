@@ -35,7 +35,7 @@ client/src/
 
 The application uses `react-router-dom` to manage different views:
 
-- `/` - **Splash View**: Entry point for users.
+- `/` - **Splash View**: Entry point for users. Shows QR codes/links for **Players** and **Host**, and quick actions.
 - `/board` - **Game Board**: The main display screen showing categories and clues. Intended to be projected or shared on a big screen.
 - `/play` - **Player View**: Mobile-friendly interface for players to buzz in and answer questions.
 - `/editor` - **Editor**: Tool for creating and modifying game files.
@@ -67,3 +67,7 @@ The application relies on **Socket.io** for real-time synchronization with the s
     ```bash
     npm run build
     ```
+
+## Host Login
+
+The host password is configured client-side in `src/constants.ts` (`HOST_PASSWORD`). The default is **`admin`**.
