@@ -3,7 +3,7 @@ import io, { Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { SERVER_URL } from '../../constants';
 import { JeopardyShell } from '../theme/JeopardyShell';
-import { panel, panelGold, buttonPrimary, buttonSecondary } from '../theme/theme';
+import { panel, panelGold, buttonSecondary } from '../theme/theme';
 
 const socket: Socket = io(SERVER_URL);
 
