@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
+import { RulesModal } from '../RulesModal';
 import { playLock, playCorrect, playWrong } from '../../utils/audio';
 import { 
   SERVER_URL, 
@@ -19,6 +20,7 @@ export const PlayerView: React.FC = () => {
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState<{type: 'correct'|'wrong', points: number} | null>(null);
   const [isPenaltyLocked, setIsPenaltyLocked] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   useEffect(() => {
     // Restore session on mount
@@ -185,6 +187,15 @@ export const PlayerView: React.FC = () => {
          isLocked && !winner ? "Waiting for Host to unlock..." : 
          "GO! GO! GO!"}
       </div>
+
+      <button 
+        onClick={() => setShowRules(true)}
+        className="mt-8 text-slate-600 hover:text-slate-400 text-xs underline underline-offset-4 transition-colors cursor-pointer"
+      >
+        How to play?
+      </button>
+
+      <RulesModal isOpen={showRules} onClose={() => setShowRules(false)} />
     </div>
   );
 };
