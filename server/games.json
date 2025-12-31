@@ -4,158 +4,121 @@
     "default": {
       "name": "Git Basics",
       "data": {
-        "categories": [
-          {
-            "name": "Git Basics",
-            "questions": [
+        "rounds": {
+          "jeopardy": {
+            "categories": [
               {
-                "value": 200,
-                "question": "This command initializes a new Git repository.",
-                "answer": "git init"
+                "name": "Git Basics",
+                "questions": [
+                  { "value": 200, "question": "This command initializes a new Git repository.", "answer": "git init" },
+                  { "value": 400, "question": "This command stages changes for the next commit.", "answer": "git add" },
+                  { "value": 600, "question": "This command saves your staged changes to the repository history.", "answer": "git commit" },
+                  { "value": 800, "question": "This command shows the status of changed files.", "answer": "git status" },
+                  { "value": 1000, "question": "This command lists the commit history.", "answer": "git log" }
+                ]
               },
               {
-                "value": 400,
-                "question": "This command stages changes for the next commit.",
-                "answer": "git add"
+                "name": "Branching",
+                "questions": [
+                  { "value": 200, "question": "This command creates a new branch.", "answer": "git branch <name>" },
+                  { "value": 400, "question": "This command switches to a different branch.", "answer": "git checkout <name>" },
+                  { "value": 600, "question": "This command merges a branch into the current one.", "answer": "git merge" },
+                  { "value": 800, "question": "This command creates and switches to a new branch in one step.", "answer": "git checkout -b <name>" },
+                  { "value": 1000, "question": "This command deletes a branch.", "answer": "git branch -d <name>" }
+                ]
               },
               {
-                "value": 600,
-                "question": "This command saves your staged changes to the repository history.",
-                "answer": "git commit"
+                "name": "Remote",
+                "questions": [
+                  { "value": 200, "question": "This command downloads changes from a remote repository.", "answer": "git pull" },
+                  { "value": 400, "question": "This command uploads local changes to a remote repository.", "answer": "git push" },
+                  { "value": 600, "question": "This command copies a remote repository to your local machine.", "answer": "git clone" },
+                  { "value": 800, "question": "This command adds a new remote repository.", "answer": "git remote add" },
+                  { "value": 1000, "question": "This command shows the remote URLs.", "answer": "git remote -v" }
+                ]
               },
               {
-                "value": 800,
-                "question": "This command shows the status of changed files.",
-                "answer": "git status"
+                "name": "Advanced",
+                "questions": [
+                  { "value": 200, "question": "This command temporarily saves your changes without committing.", "answer": "git stash" },
+                  { "value": 400, "question": "This command reapplies commits on top of another base tip.", "answer": "git rebase" },
+                  { "value": 600, "question": "This command finds the commit that introduced a bug.", "answer": "git bisect" },
+                  { "value": 800, "question": "This command removes untracked files from the working tree.", "answer": "git clean" },
+                  { "value": 1000, "question": "This command shows who changed what and when in a file.", "answer": "git blame" }
+                ]
               },
               {
-                "value": 1000,
-                "question": "This command lists the commit history.",
-                "answer": "git log"
+                "name": "Git Culture",
+                "questions": [
+                  { "value": 200, "question": "A popular branching model for Git.", "answer": "Git Flow" },
+                  { "value": 400, "question": "A request to merge code into the main codebase.", "answer": "Pull Request (PR)" },
+                  { "value": 600, "question": "A copy of a repository that you manage.", "answer": "Fork" },
+                  { "value": 800, "question": "The default branch name in modern Git repositories.", "answer": "main" },
+                  { "value": 1000, "question": "A file that specifies intentionally untracked files to ignore.", "answer": ".gitignore" }
+                ]
               }
             ]
           },
-          {
-            "name": "Branching",
-            "questions": [
+          "double": {
+            "categories": [
               {
-                "value": 200,
-                "question": "This command creates a new branch.",
-                "answer": "git branch <name>"
+                "name": "Git Internals",
+                "questions": [
+                  { "value": 400, "question": "This hidden folder contains all Git repository data.", "answer": ".git" },
+                  { "value": 800, "question": "This type of Git object stores the contents of a file.", "answer": "blob" },
+                  { "value": 1200, "question": "This Git object type represents a directory listing.", "answer": "tree" },
+                  { "value": 1600, "question": "This command shows the type of a Git object.", "answer": "git cat-file -t" },
+                  { "value": 2000, "question": "This file in .git stores the current branch reference.", "answer": "HEAD" }
+                ]
               },
               {
-                "value": 400,
-                "question": "This command switches to a different branch.",
-                "answer": "git checkout <name>"
+                "name": "Undoing Things",
+                "questions": [
+                  { "value": 400, "question": "This command unstages a file.", "answer": "git reset HEAD <file>" },
+                  { "value": 800, "question": "This command discards local changes to a file.", "answer": "git checkout -- <file>" },
+                  { "value": 1200, "question": "This command creates a new commit that undoes a previous commit.", "answer": "git revert" },
+                  { "value": 1600, "question": "This reset mode keeps changes in the working directory.", "answer": "soft" },
+                  { "value": 2000, "question": "This command lets you rewrite commit history interactively.", "answer": "git rebase -i" }
+                ]
               },
               {
-                "value": 600,
-                "question": "This command merges a branch into the current one.",
-                "answer": "git merge"
+                "name": "Collaboration",
+                "questions": [
+                  { "value": 400, "question": "This command fetches and merges remote changes.", "answer": "git pull" },
+                  { "value": 800, "question": "This command downloads remote changes without merging.", "answer": "git fetch" },
+                  { "value": 1200, "question": "This Git feature lets multiple remotes be configured.", "answer": "remote tracking" },
+                  { "value": 1600, "question": "This command shows all remote-tracking branches.", "answer": "git branch -r" },
+                  { "value": 2000, "question": "This command sets the upstream branch for pushing.", "answer": "git push -u origin <branch>" }
+                ]
               },
               {
-                "value": 800,
-                "question": "This command creates and switches to a new branch in one step.",
-                "answer": "git checkout -b <name>"
+                "name": "Configuration",
+                "questions": [
+                  { "value": 400, "question": "This command sets your Git username.", "answer": "git config user.name" },
+                  { "value": 800, "question": "This flag makes a config setting apply to all repositories.", "answer": "--global" },
+                  { "value": 1200, "question": "This command lists all configuration settings.", "answer": "git config --list" },
+                  { "value": 1600, "question": "This config file is stored in your home directory.", "answer": ".gitconfig" },
+                  { "value": 2000, "question": "This command creates a Git alias.", "answer": "git config alias.<name>" }
+                ]
               },
               {
-                "value": 1000,
-                "question": "This command deletes a branch.",
-                "answer": "git branch -d <name>"
-              }
-            ]
-          },
-          {
-            "name": "Remote",
-            "questions": [
-              {
-                "value": 200,
-                "question": "This command downloads changes from a remote repository.",
-                "answer": "git pull"
-              },
-              {
-                "value": 400,
-                "question": "This command uploads local changes to a remote repository.",
-                "answer": "git push"
-              },
-              {
-                "value": 600,
-                "question": "This command copies a remote repository to your local machine.",
-                "answer": "git clone"
-              },
-              {
-                "value": 800,
-                "question": "This command adds a new remote repository.",
-                "answer": "git remote add"
-              },
-              {
-                "value": 1000,
-                "question": "This command shows the remote URLs.",
-                "answer": "git remote -v"
-              }
-            ]
-          },
-          {
-            "name": "Advanced",
-            "questions": [
-              {
-                "value": 200,
-                "question": "This command temporarily saves your changes without committing.",
-                "answer": "git stash"
-              },
-              {
-                "value": 400,
-                "question": "This command reapplies commits on top of another base tip.",
-                "answer": "git rebase"
-              },
-              {
-                "value": 600,
-                "question": "This command finds the commit that introduced a bug.",
-                "answer": "git bisect"
-              },
-              {
-                "value": 800,
-                "question": "This command removes untracked files from the working tree.",
-                "answer": "git clean"
-              },
-              {
-                "value": 1000,
-                "question": "This command shows who changed what and when in a file.",
-                "answer": "git blame"
-              }
-            ]
-          },
-          {
-            "name": "gittttt",
-            "questions": [
-              {
-                "value": 200,
-                "question": "A popular branching model for Git.",
-                "answer": "Git Flow"
-              },
-              {
-                "value": 400,
-                "question": "A request to merge code into the main codebase.",
-                "answer": "Pull Request (PR)"
-              },
-              {
-                "value": 600,
-                "question": "A copy of a repository that you manage.",
-                "answer": "Fork"
-              },
-              {
-                "value": 800,
-                "question": "The default branch name in modern Git repositories.",
-                "answer": "main"
-              },
-              {
-                "value": 1000,
-                "question": "A file that specifies intentionally untracked files to ignore.",
-                "answer": ".gitignore"
+                "name": "Pro Moves",
+                "questions": [
+                  { "value": 400, "question": "This command applies a single commit from another branch.", "answer": "git cherry-pick" },
+                  { "value": 800, "question": "This command compresses the repository history.", "answer": "git gc" },
+                  { "value": 1200, "question": "This command shows the reference log of HEAD movements.", "answer": "git reflog" },
+                  { "value": 1600, "question": "This command lists all tags in a repository.", "answer": "git tag" },
+                  { "value": 2000, "question": "This command manages multiple working trees.", "answer": "git worktree" }
+                ]
               }
             ]
           }
-        ]
+        },
+        "finalJeopardy": {
+          "category": "Git History",
+          "clue": "This Finnish software engineer created Git in 2005 to manage Linux kernel development after the BitKeeper license was revoked.",
+          "answer": "Who is Linus Torvalds?"
+        }
       }
     }
   }

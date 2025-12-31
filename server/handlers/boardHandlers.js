@@ -1,11 +1,15 @@
 const { v4: uuidv4 } = require('uuid');
-const { getGameData, saveGameData, getActiveBoard } = require('../gameStore');
-const { gameState } = require('../gameState');
+const { getGameData, saveGameData, getActiveBoard, createEmptyCategories, createEmptyDoubleCategories } = require('../gameStore');
+const { gameState, resetGameState, generateDailyDoubles } = require('../gameState');
 
 module.exports = (io, socket) => {
-  // General Data Request
+  // General Data Request - now includes round info
   socket.on('request-game-data', () => {
-    socket.emit('init-game', getActiveBoard());
+    const boardData = getActiveBoard();
+    socket.emit('init-game', {
+      ...boardData,
+      currentRound: gameState.round
+    });
     socket.emit('state-update', gameState);
   });
 
@@ -20,14 +24,15 @@ module.exports = (io, socket) => {
     const newBoard = {
       name: name || "New Game Board",
       data: {
-        categories: Array(5).fill(null).map((_, i) => ({
-          name: `Category ${i+1}`,
-          questions: Array(5).fill(null).map((_, j) => ({
-            value: (j + 1) * 200,
-            question: "Enter question here...",
-            answer: "Enter answer here..."
-          }))
-        }))
+        rounds: {
+          jeopardy: { categories: createEmptyCategories() },
+          double: { categories: createEmptyDoubleCategories() }
+        },
+        finalJeopardy: {
+          category: "Final Category",
+          clue: "Enter final clue here...",
+          answer: "Enter final answer here..."
+        }
       }
     };
     
@@ -42,14 +47,14 @@ module.exports = (io, socket) => {
       gameData.activeBoardId = boardId;
       saveGameData(gameData);
       
-      // Reset game state for new board? 
-      // Often desirable, but let's keep players connected.
-      gameState.playedQuestions = [];
-      gameState.currentQuestion = null;
+      // Full reset for new board
+      resetGameState(true);
       
-      io.emit('init-game', getActiveBoard());
+      io.emit('init-game', {
+        ...getActiveBoard(),
+        currentRound: gameState.round
+      });
       io.emit('state-update', gameState);
-      // Notify admins too
       io.emit('all-boards-data', gameData); 
     }
   });
@@ -64,10 +69,12 @@ module.exports = (io, socket) => {
       
       // If this is the active board, broadcast updates
       if (gameData.activeBoardId === boardId) {
-        io.emit('init-game', getActiveBoard());
+        io.emit('init-game', {
+          ...getActiveBoard(),
+          currentRound: gameState.round
+        });
       }
       socket.emit('save-success');
-      // Update admin view
       socket.emit('all-boards-data', gameData);
     }
   });
@@ -80,7 +87,12 @@ module.exports = (io, socket) => {
       // If we deleted the active board, switch to another
       if (gameData.activeBoardId === boardId) {
         gameData.activeBoardId = Object.keys(gameData.boards)[0];
-        io.emit('init-game', getActiveBoard());
+        resetGameState(true);
+        io.emit('init-game', {
+          ...getActiveBoard(),
+          currentRound: gameState.round
+        });
+        io.emit('state-update', gameState);
       }
       
       saveGameData(gameData);

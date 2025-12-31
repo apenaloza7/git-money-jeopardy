@@ -15,7 +15,7 @@ import { JeopardyShell } from './components/theme/JeopardyShell';
 // Connect to the backend
 const socket: Socket = io(SERVER_URL);
 
-// Types (should actully be in a shared types file)
+// Types (should actually be in a shared types file)
 interface Question {
   value: number;
   question: string;
@@ -27,8 +27,23 @@ interface Category {
   questions: Question[];
 }
 
-interface GameData {
+interface RoundData {
   categories: Category[];
+}
+
+interface FinalJeopardyData {
+  category: string;
+  clue: string;
+  answer: string;
+}
+
+interface GameData {
+  rounds: {
+    jeopardy: RoundData;
+    double: RoundData;
+  };
+  finalJeopardy: FinalJeopardyData;
+  currentRound?: string;
 }
 
 // Protected Route Component for Host
