@@ -1,33 +1,12 @@
 const { gameState, resetGameState, advanceRound, generateDailyDoubles } = require('../gameState');
 const { getRoundCategories, getFinalJeopardy } = require('../gameStore');
-
-// Timer constants
-const ANSWER_TIME_LIMIT_MS = 5000; // 5 seconds to answer after buzzing
-const FINAL_JEOPARDY_WAGER_TIME_MS = 30000; // 30 seconds to wager
-const FINAL_JEOPARDY_ANSWER_TIME_MS = 30000; // 30 seconds to answer
-
-let timerTimeout = null;
-
-function clearTimer() {
-  if (timerTimeout) {
-    clearTimeout(timerTimeout);
-    timerTimeout = null;
-  }
-  gameState.timerEndTime = null;
-}
-
-function startTimer(io, durationMs, onExpire) {
-  clearTimer();
-  gameState.timerEndTime = Date.now() + durationMs;
-  
-  timerTimeout = setTimeout(() => {
-    clearTimer();
-    if (onExpire) onExpire();
-    io.emit('state-update', gameState);
-  }, durationMs);
-  
-  io.emit('state-update', gameState);
-}
+const { 
+  clearTimer, 
+  startTimer, 
+  startAnswerTimer,
+  FINAL_JEOPARDY_WAGER_TIME_MS, 
+  FINAL_JEOPARDY_ANSWER_TIME_MS 
+} = require('../timerManager');
 
 module.exports = (io, socket) => {
   socket.on('host-unlock-buzzers', () => {
@@ -126,8 +105,16 @@ module.exports = (io, socket) => {
       const categories = getRoundCategories(gameState.round);
       const totalQuestions = categories.reduce((sum, cat) => sum + cat.questions.length, 0);
       
-      if (gameState.playedQuestions.length >= totalQuestions) {
-        io.emit('round-complete', { round: gameState.round });
+      if (gameState.playedQuestions.length >= totalQuestions && gameState.round !== 'final') {
+        // Auto-advance to next round
+        const previousRound = gameState.round;
+        advanceRound();
+        
+        io.emit('round-transition', { 
+          from: previousRound, 
+          to: gameState.round 
+        });
+        console.log(`Auto-advanced from ${previousRound} to ${gameState.round}`);
       }
       
       io.emit('state-update', gameState);
@@ -242,33 +229,9 @@ module.exports = (io, socket) => {
     io.emit('state-update', gameState);
   });
 
-  // Start answer timer (for buzzer scenarios)
+  // Start answer timer (for buzzer scenarios) - manual trigger by host
   socket.on('host-start-timer', () => {
-    startTimer(io, ANSWER_TIME_LIMIT_MS, () => {
-      // Time expired - mark as wrong
-      if (gameState.activePlayer) {
-        const playerId = gameState.activePlayer;
-        const points = gameState.currentWager 
-          ? -gameState.currentWager.amount 
-          : -(gameState.currentQuestion?.value || 0);
-        
-        if (gameState.players[playerId]) {
-          gameState.players[playerId].score += points;
-          
-          io.emit('feedback', {
-            type: 'wrong',
-            playerId,
-            playerName: gameState.players[playerId].name,
-            points
-          });
-        }
-        
-        gameState.activePlayer = null;
-        gameState.isBuzzersLocked = true;
-        gameState.currentWager = null;
-      }
-      io.emit('timer-expired', {});
-    });
+    startAnswerTimer(io);
   });
 
   socket.on('host-reset-game', () => {

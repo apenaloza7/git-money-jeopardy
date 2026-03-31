@@ -292,4 +292,3 @@ export const playTimerExpired = () => {
   osc1.stop(ctx.currentTime + 0.6);
   osc2.stop(ctx.currentTime + 0.6);
 };
-

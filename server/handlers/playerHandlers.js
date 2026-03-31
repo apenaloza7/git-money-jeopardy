@@ -1,5 +1,6 @@
 const { gameState, socketIdToPlayerId } = require('../gameState');
 const { getRoundCategories } = require('../gameStore');
+const { startAnswerTimer } = require('../timerManager');
 
 module.exports = (io, socket) => {
   // Player Joins
@@ -19,6 +20,12 @@ module.exports = (io, socket) => {
         score: 0,
         online: true
       };
+      
+      // First player to join gets control of the board (for first clue pick)
+      if (!gameState.controllingPlayer) {
+        gameState.controllingPlayer = playerId;
+        console.log(`${gameState.players[playerId].name} has control (first player)`);
+      }
     } else {
       // Rejoining Player
       gameState.players[playerId].online = true;
@@ -41,6 +48,9 @@ module.exports = (io, socket) => {
         winnerId: playerId, 
         winnerName: gameState.players[playerId]?.name 
       });
+      
+      // Auto-start the 5-second answer timer
+      startAnswerTimer(io);
       
       io.emit('state-update', gameState);
     }

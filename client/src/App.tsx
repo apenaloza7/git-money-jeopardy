@@ -12,10 +12,10 @@ import { EditorView } from './components/views/EditorView';
 import { GameBoard } from './components/GameBoard';
 import { JeopardyShell } from './components/theme/JeopardyShell';
 
-// Connect to the backend
+// Connect to backend
 const socket: Socket = io(SERVER_URL);
 
-// Types (should actually be in a shared types file)
+// Types
 interface Question {
   value: number;
   question: string;
@@ -46,7 +46,7 @@ interface GameData {
   currentRound?: string;
 }
 
-// Protected Route Component for Host
+// Protected Route for Host
 const ProtectedHostRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuth = localStorage.getItem('host_token') === 'true';
   return isAuth ? <>{children}</> : <Navigate to="/host" replace />;
@@ -57,7 +57,6 @@ function App() {
   const [gameData, setGameData] = useState<GameData | null>(null);
 
   useEffect(() => {
-    // Handler for receiving game data
     const handleGameData = (data: GameData) => {
       console.log('Game data received:', data);
       setGameData(data);
@@ -76,7 +75,6 @@ function App() {
 
     socket.on('init-game', handleGameData);
 
-    // If socket is already connected when component mounts (e.g. navigation), request data immediately
     if (socket.connected) {
       setIsConnected(true);
       socket.emit('request-game-data');
@@ -97,33 +95,38 @@ function App() {
         
         <Route path="/board" element={
           gameData ? (
-            <JeopardyShell className="h-screen" withContainer={false}>
-              <div className="min-h-screen text-white p-4 overflow-hidden h-screen flex flex-col">
-                 <header className="flex justify-between items-center mb-4">
-                  <h1 className="font-display text-4xl font-extrabold text-yellow-400 tracking-wider drop-shadow">
+            <JeopardyShell backgroundMode="viewport" className="h-dvh overflow-hidden">
+              <div className="h-dvh w-full flex flex-col overflow-hidden">
+                {/* Header */}
+                <header className="shrink-0 px-4 py-2 flex items-center justify-between border-b border-slate-700/50">
+                  <h1 className="font-display text-xl md:text-2xl text-amber-400 tracking-wider">
                     Git Money Jeopardy
                   </h1>
-                  <div className="flex items-center space-x-2">
-                    <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                    <span className="text-sm font-mono">{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    <span className="text-xs font-mono text-slate-400">{isConnected ? 'LIVE' : 'OFFLINE'}</span>
                   </div>
                 </header>
-                <div className="flex-1 flex items-center h-full">
-                   <GameBoard gameData={gameData} socket={socket} />
+                
+                {/* Game Board - takes remaining height */}
+                <div className="flex-1 min-h-0">
+                  <GameBoard gameData={gameData} socket={socket} />
                 </div>
               </div>
             </JeopardyShell>
           ) : (
-            <JeopardyShell withContainer>
-              <div className="min-h-screen text-white flex items-center justify-center">
-                Loading Board...
+            <JeopardyShell backgroundMode="viewport">
+              <div className="min-h-dvh w-full flex items-center justify-center">
+                <div className="text-center">
+                  <div className="font-display text-2xl text-amber-400 mb-2">Loading Board...</div>
+                  <div className="text-slate-500 text-sm">Connecting to server</div>
+                </div>
               </div>
             </JeopardyShell>
           )
         } />
 
         <Route path="/play" element={<PlayerView />} />
-        
         <Route path="/editor" element={<EditorView />} />
 
         {/* Host Routes */}

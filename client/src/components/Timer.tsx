@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { playTimerTick, playTimerExpired } from '../utils/audio';
 
 interface TimerProps {
-  endTime: number | null; // Unix timestamp when timer expires
+  endTime: number | null;
   onExpire?: () => void;
   size?: 'sm' | 'md' | 'lg';
-  showTicks?: boolean; // Play tick sounds in last 5 seconds
+  showTicks?: boolean;
   className?: string;
 }
 
@@ -33,9 +33,8 @@ export const Timer: React.FC<TimerProps> = ({
       
       setTimeLeft(remaining);
 
-      // Play tick sounds in last 5 seconds
+      // Tick sounds in last 5 seconds
       if (showTicks && seconds <= 5 && seconds > 0 && remaining > 0) {
-        // Only tick on whole seconds
         const msInCurrentSecond = remaining % 1000;
         if (msInCurrentSecond > 900) {
           playTimerTick();
@@ -45,73 +44,75 @@ export const Timer: React.FC<TimerProps> = ({
       if (remaining <= 0 && !hasExpired) {
         setHasExpired(true);
         playTimerExpired();
-        if (onExpire) onExpire();
+        onExpire?.();
       }
     };
 
     updateTimer();
     const interval = setInterval(updateTimer, 100);
-
     return () => clearInterval(interval);
   }, [endTime, onExpire, showTicks, hasExpired]);
 
   if (!endTime || timeLeft <= 0) return null;
 
   const seconds = Math.ceil(timeLeft / 1000);
-  const progress = endTime ? (timeLeft / (endTime - Date.now() + timeLeft)) : 0;
+  
+  // Calculate progress
+  const initialDuration = endTime - (Date.now() - timeLeft + timeLeft);
+  const progress = initialDuration > 0 ? timeLeft / initialDuration : 0;
 
-  // Size classes
-  const sizeClasses = {
-    sm: 'w-16 h-16 text-xl',
-    md: 'w-24 h-24 text-3xl',
-    lg: 'w-32 h-32 text-5xl'
+  // Sizes
+  const sizeConfig = {
+    sm: { container: 'w-12 h-12', text: 'text-lg', stroke: 3, radius: 20 },
+    md: { container: 'w-20 h-20', text: 'text-2xl', stroke: 4, radius: 34 },
+    lg: { container: 'w-28 h-28', text: 'text-4xl', stroke: 6, radius: 48 },
   };
 
-  // Color based on time remaining
-  const colorClass = seconds <= 2 ? 'text-red-500' : seconds <= 5 ? 'text-yellow-400' : 'text-white';
-  const ringColor = seconds <= 2 ? 'stroke-red-500' : seconds <= 5 ? 'stroke-yellow-400' : 'stroke-blue-400';
-
-  // SVG circle properties
-  const strokeWidth = size === 'lg' ? 8 : size === 'md' ? 6 : 4;
-  const radius = size === 'lg' ? 56 : size === 'md' ? 42 : 28;
-  const circumference = 2 * Math.PI * radius;
+  const config = sizeConfig[size];
+  const circumference = 2 * Math.PI * config.radius;
   const strokeDashoffset = circumference * (1 - Math.min(progress, 1));
 
+  // Colors based on urgency
+  const isUrgent = seconds <= 2;
+  const isWarning = seconds <= 5;
+  const textColor = isUrgent ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-white';
+  const strokeColor = isUrgent ? '#f87171' : isWarning ? '#fbbf24' : '#60a5fa';
+
   return (
-    <div className={`relative flex items-center justify-center ${sizeClasses[size]} ${className}`}>
-      {/* Background circle */}
-      <svg className="absolute inset-0 -rotate-90" viewBox="0 0 128 128">
+    <div className={`relative flex items-center justify-center ${config.container} ${className}`}>
+      {/* Background ring */}
+      <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
         <circle
-          cx="64"
-          cy="64"
-          r={radius}
+          cx="50"
+          cy="50"
+          r={config.radius}
           fill="none"
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          className="text-slate-700/50"
+          stroke="rgba(255,255,255,0.1)"
+          strokeWidth={config.stroke}
         />
-        {/* Progress circle */}
+        {/* Progress ring */}
         <circle
-          cx="64"
-          cy="64"
-          r={radius}
+          cx="50"
+          cy="50"
+          r={config.radius}
           fill="none"
-          strokeWidth={strokeWidth}
+          stroke={strokeColor}
+          strokeWidth={config.stroke}
           strokeLinecap="round"
-          className={ringColor}
           style={{
             strokeDasharray: circumference,
             strokeDashoffset,
-            transition: 'stroke-dashoffset 0.1s linear'
+            transition: 'stroke-dashoffset 0.1s linear, stroke 0.3s ease',
           }}
         />
       </svg>
       
-      {/* Time text */}
-      <span className={`font-mono font-bold ${colorClass} drop-shadow-lg z-10 ${seconds <= 2 ? 'animate-pulse' : ''}`}>
+      {/* Time display */}
+      <span className={`font-mono font-bold ${config.text} ${textColor} z-10 ${
+        isUrgent ? 'animate-pulse scale-110' : ''
+      }`}>
         {seconds}
       </span>
     </div>
   );
 };
-
