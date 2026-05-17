@@ -39,3 +39,6 @@ lerna-debug.log*
 .cursor/
 .cursorignore
 
+# AI Tools
+CLAUDE.md
+
