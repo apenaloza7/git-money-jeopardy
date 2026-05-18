@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { playBuzz, playCorrect, playWrong, playDailyDoubleReveal, playRoundTransition, playThinkMusic, stopThinkMusic } from '../utils/audio';
 import { FEEDBACK_DURATION_MS } from '../constants';
-import { panel, getScoreColor } from './theme/theme';
+import { getScoreColor } from './theme/theme';
 import { Timer } from './Timer';
 
 interface Question {
@@ -70,19 +70,16 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
   useEffect(() => {
     socket.on('state-update', (state: any) => {
       if (state.round) setRound(state.round);
-      
       if (state.activePlayer) {
         setActivePlayerName(state.players[state.activePlayer]?.name || 'Unknown');
       } else {
         setActivePlayerName(null);
       }
-
       setCurrentQuestion(state.currentQuestion);
       setPlayedQuestions(state.playedQuestions || []);
       setScores(state.players || {});
       setTimerEndTime(state.timerEndTime);
       setControllingPlayer(state.controllingPlayer);
-      
       setFjPhase(state.finalJeopardyPhase);
       setFjWagers(state.finalJeopardyWagers || {});
       setFjAnswers(state.finalJeopardyAnswers || {});
@@ -131,30 +128,43 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
     ? categories[currentQuestion.categoryIndex]?.questions[currentQuestion.questionIndex]
     : null;
 
-  // === FINAL JEOPARDY ===
+  // ========== FINAL JEOPARDY ==========
   if (round === 'final' && gameData.finalJeopardy) {
     const fj = gameData.finalJeopardy;
-    
+
     return (
-      <div className="w-full h-full flex flex-col overflow-hidden">
+      <div className="w-full h-full flex flex-col overflow-hidden relative">
         {/* Feedback Overlay */}
         {feedback && (
-          <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center ${
-            feedback.type === 'correct' ? 'bg-emerald-600' : 'bg-red-600'
-          }`}>
-            <div className="text-white text-7xl md:text-9xl font-black mb-4">
+          <div
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+            style={{
+              background: feedback.type === 'correct'
+                ? 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)'
+                : 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%)',
+            }}
+          >
+            <div
+              className="font-display text-white text-7xl md:text-9xl mb-4 animate-bounce-in"
+              style={{ textShadow: `0 0 60px ${feedback.type === 'correct' ? 'rgba(74,222,128,0.6)' : 'rgba(248,113,113,0.6)'}` }}
+            >
               {feedback.type === 'correct' ? 'CORRECT!' : 'WRONG!'}
             </div>
-            <div className="text-white text-4xl md:text-6xl font-bold uppercase tracking-wider mb-6">
+            <div className="text-white/90 text-3xl md:text-5xl font-bold uppercase tracking-widest mb-6 animate-slide-up stagger-2">
               {feedback.playerName}
             </div>
-            <div className="text-white text-6xl md:text-8xl font-mono font-bold bg-black/30 px-8 py-3 rounded-xl">
-              {feedback.points > 0 ? '+' : ''}{feedback.points}
+            <div
+              className="font-mono-game text-white text-5xl md:text-7xl font-bold px-10 py-4 rounded-2xl animate-slide-up stagger-3"
+              style={{
+                background: 'rgba(0,0,0,0.35)',
+                border: '1px solid rgba(255,255,255,0.15)',
+              }}
+            >
+              {feedback.points > 0 ? '+' : ''}{feedback.points.toLocaleString()}
             </div>
           </div>
         )}
 
-        {/* Timer */}
         {timerEndTime && (
           <div className="absolute top-6 right-6 z-50">
             <Timer endTime={timerEndTime} size="lg" />
@@ -162,53 +172,82 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-4 md:p-8 text-center overflow-auto">
-          <div className="font-display text-4xl md:text-6xl text-amber-400 mb-6 tracking-wider">
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-6 md:p-10 text-center overflow-auto">
+          <div
+            className="font-display text-5xl md:text-7xl text-amber-400 mb-8 tracking-wider animate-slide-down"
+            style={{ textShadow: '0 0 40px rgba(228,181,69,0.4)' }}
+          >
             FINAL JEOPARDY
           </div>
-          
-          <div className="bg-blue-900/60 backdrop-blur rounded-2xl p-6 md:p-10 max-w-3xl w-full border-2 border-amber-500/40 shadow-2xl">
-            <div className="text-amber-300 text-lg md:text-xl uppercase tracking-widest mb-4 font-bold">
+
+          <div
+            className="w-full max-w-3xl rounded-3xl p-8 md:p-12"
+            style={{
+              background: 'linear-gradient(145deg, rgba(10,18,58,0.95), rgba(6,8,18,0.98))',
+              border: '2px solid rgba(228,181,69,0.3)',
+              borderTopColor: 'rgba(228,181,69,0.5)',
+              boxShadow: '0 0 60px rgba(228,181,69,0.08), 0 24px 64px rgba(0,0,0,0.6)',
+            }}
+          >
+            <div
+              className="font-display text-xl md:text-2xl text-amber-400 mb-6 tracking-widest"
+              style={{ textShadow: '0 0 20px rgba(228,181,69,0.3)' }}
+            >
               {fj.category}
             </div>
-            
+
             {(fjPhase === 'clue' || fjPhase === 'answer' || fjPhase === 'reveal') && (
-              <div className="text-white text-xl md:text-3xl font-serif leading-relaxed">
+              <div className="text-white text-2xl md:text-4xl font-serif leading-relaxed animate-scale-in">
                 {fj.clue}
               </div>
             )}
-            
+
             {fjPhase === 'reveal' && (
-              <div className="mt-6 pt-6 border-t border-amber-500/30">
-                <div className="text-slate-400 text-xs uppercase tracking-wider mb-1">Correct Response</div>
-                <div className="text-emerald-400 text-xl md:text-2xl font-bold">{fj.answer}</div>
+              <div className="mt-8 pt-8 border-t border-amber-500/20">
+                <div className="text-slate-500 text-xs uppercase tracking-widest mb-2 font-semibold">Correct Response</div>
+                <div
+                  className="text-emerald-400 text-2xl md:text-3xl font-bold animate-scale-in"
+                  style={{ textShadow: '0 0 20px rgba(74,222,128,0.3)' }}
+                >
+                  {fj.answer}
+                </div>
               </div>
             )}
-            
+
             {fjPhase === 'wager' && (
-              <div className="text-slate-300 text-base italic mt-3">Players are making their wagers...</div>
+              <div className="text-slate-400 text-lg italic mt-2 animate-scale-in">
+                Players are placing their wagers…
+              </div>
             )}
-            
+
             {fjPhase === 'category' && (
-              <div className="text-slate-300 text-base italic mt-3">The category has been revealed...</div>
+              <div className="text-slate-400 text-lg italic mt-2 animate-scale-in">
+                The category has been revealed…
+              </div>
             )}
           </div>
         </div>
 
         {/* Score Footer */}
         {Object.keys(scores).length > 0 && (
-          <div className="shrink-0 py-2 px-3 flex justify-center gap-4 md:gap-8 border-t-2 border-amber-500 bg-slate-900/90 backdrop-blur">
+          <div
+            className="shrink-0 py-3 px-4 flex justify-center gap-6 md:gap-12"
+            style={{
+              background: 'rgba(3,4,12,0.95)',
+              borderTop: '2px solid rgba(228,181,69,0.3)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
             {Object.entries(scores).map(([id, player]: [string, any]) => {
               const isRevealed = fjRevealed.includes(id);
-              
               return (
-                <div key={id} className={`flex flex-col items-center min-w-[70px] md:min-w-[100px] ${isRevealed ? 'opacity-60' : ''}`}>
-                  <div className="text-slate-400 text-xs font-bold uppercase tracking-wider">{player.name}</div>
-                  <div className={`text-lg md:text-2xl font-mono font-bold ${getScoreColor(player.score)}`}>
+                <div key={id} className={`flex flex-col items-center min-w-[70px] md:min-w-[110px] ${isRevealed ? 'opacity-50' : ''}`}>
+                  <div className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-0.5">{player.name}</div>
+                  <div className={`font-mono-game text-lg md:text-2xl font-bold ${getScoreColor(player.score)}`}>
                     ${player.score.toLocaleString()}
                   </div>
                   {isRevealed && fjWagers[id] !== undefined && (
-                    <div className="text-[10px] text-slate-500">Wagered: ${fjWagers[id]}</div>
+                    <div className="text-[10px] text-slate-600 mt-0.5">wagered ${fjWagers[id].toLocaleString()}</div>
                   )}
                 </div>
               );
@@ -219,32 +258,54 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
     );
   }
 
-  // === GAME FINISHED ===
+  // ========== GAME FINISHED ==========
   if (round === 'finished') {
     const sortedPlayers = Object.values(scores).sort((a: any, b: any) => b.score - a.score);
     const winner = sortedPlayers[0];
-    
+
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-6 overflow-auto">
+      <div className="w-full h-full flex flex-col items-center justify-center p-6 overflow-auto">
         <div className="text-center animate-bounce-in">
-          <div className="font-display text-4xl md:text-6xl text-amber-400 mb-6 tracking-wider animate-text-glow">
+          <div
+            className="font-display text-5xl md:text-8xl text-amber-400 mb-10 tracking-wider"
+            style={{ textShadow: '0 0 60px rgba(228,181,69,0.5)' }}
+          >
             GAME OVER
           </div>
-          
+
           {winner && (
-            <div className="bg-gradient-to-b from-amber-500/20 to-amber-600/10 rounded-2xl p-6 md:p-8 border-4 border-amber-500/50 mb-6">
-              <div className="text-slate-300 text-sm uppercase tracking-widest mb-2">Winner</div>
-              <div className="text-white text-4xl md:text-5xl font-black mb-3">{winner.name}</div>
-              <div className="text-emerald-400 text-3xl md:text-4xl font-mono font-bold">${winner.score.toLocaleString()}</div>
+            <div
+              className="rounded-3xl p-8 md:p-10 mb-8 text-center"
+              style={{
+                background: 'linear-gradient(145deg, rgba(120,80,0,0.2), rgba(80,50,0,0.1))',
+                border: '3px solid rgba(228,181,69,0.5)',
+                boxShadow: '0 0 80px rgba(228,181,69,0.15), 0 24px 64px rgba(0,0,0,0.6)',
+              }}
+            >
+              <div className="text-slate-400 text-sm uppercase tracking-widest mb-3 font-semibold">Winner</div>
+              <div
+                className="text-white text-4xl md:text-6xl font-black mb-4"
+                style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+              >
+                {winner.name}
+              </div>
+              <div
+                className="font-mono-game text-emerald-400 text-3xl md:text-5xl font-bold"
+                style={{ textShadow: '0 0 30px rgba(74,222,128,0.4)' }}
+              >
+                ${winner.score.toLocaleString()}
+              </div>
             </div>
           )}
-          
-          <div className="flex gap-6 justify-center">
+
+          <div className="flex gap-8 justify-center">
             {sortedPlayers.slice(1, 3).map((player: any, idx) => (
               <div key={idx} className="text-center">
-                <div className="text-slate-500 text-xs uppercase">{idx === 0 ? '2nd' : '3rd'}</div>
-                <div className="text-white text-lg font-bold">{player.name}</div>
-                <div className={`text-base font-mono ${getScoreColor(player.score)}`}>
+                <div className="text-slate-500 text-xs uppercase tracking-widest mb-1">{idx === 0 ? '2nd' : '3rd'}</div>
+                <div className="text-white text-xl font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                  {player.name}
+                </div>
+                <div className={`font-mono-game text-base font-bold ${getScoreColor(player.score)}`}>
                   ${player.score.toLocaleString()}
                 </div>
               </div>
@@ -255,65 +316,139 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
     );
   }
 
-  // === MAIN GAME BOARD ===
+  // ========== MAIN GAME BOARD ==========
   return (
     <div className="w-full h-full flex flex-col relative overflow-hidden">
-      
+
       {/* Round Transition Overlay */}
       {showRoundTransition && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900">
-          <div className="font-display text-6xl md:text-8xl text-amber-400 tracking-wider animate-bounce-in">
-            {showRoundTransition.to === 'double' ? 'DOUBLE JEOPARDY!' : 
-             showRoundTransition.to === 'final' ? 'FINAL JEOPARDY!' : 
-             showRoundTransition.to.toUpperCase()}
+        <div
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+          style={{ background: 'linear-gradient(145deg, #03040c 0%, #060d3a 50%, #03040c 100%)' }}
+        >
+          {/* Radial glow behind text */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(228,181,69,0.12) 0%, transparent 70%)',
+            }}
+          />
+          <div
+            className="font-display text-7xl md:text-9xl text-amber-400 tracking-wider animate-bounce-in relative"
+            style={{ textShadow: '0 0 80px rgba(228,181,69,0.6), 0 0 160px rgba(228,181,69,0.2)' }}
+          >
+            {showRoundTransition.to === 'double' ? 'DOUBLE JEOPARDY!'
+              : showRoundTransition.to === 'final' ? 'FINAL JEOPARDY!'
+              : showRoundTransition.to.toUpperCase()}
           </div>
           {showRoundTransition.to === 'double' && (
-            <div className="text-white text-xl md:text-2xl mt-6 opacity-75">Values are doubled!</div>
+            <div className="text-white/70 text-xl md:text-3xl mt-6 font-semibold tracking-widest uppercase animate-slide-up stagger-3">
+              Values are doubled!
+            </div>
           )}
         </div>
       )}
-      
+
       {/* Daily Double Overlay */}
       {showDailyDouble && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-gradient-to-br from-amber-500 via-orange-500 to-red-500">
-          <div className="font-display text-6xl md:text-9xl text-white tracking-wider animate-bounce drop-shadow-2xl">
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #92400e 0%, #b45309 30%, #d97706 60%, #f59e0b 100%)' }}
+        >
+          <div
+            className="font-display text-7xl md:text-[10rem] text-white tracking-wider animate-bounce drop-shadow-2xl"
+            style={{ textShadow: '0 0 40px rgba(0,0,0,0.5), 0 4px 24px rgba(0,0,0,0.8)' }}
+          >
             DAILY DOUBLE!
           </div>
         </div>
       )}
-      
+
       {/* Feedback Overlay */}
       {feedback && (
-        <div className={`fixed inset-0 z-[80] flex flex-col items-center justify-center ${
-          feedback.type === 'correct' ? 'bg-emerald-600' : 'bg-red-600'
-        }`}>
-          <div className="text-white text-7xl md:text-9xl font-black mb-4">
+        <div
+          className="fixed inset-0 z-[80] flex flex-col items-center justify-center"
+          style={{
+            background: feedback.type === 'correct'
+              ? 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)'
+              : 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%)',
+          }}
+        >
+          <div
+            className="font-display text-white text-7xl md:text-9xl mb-4 animate-bounce-in"
+            style={{ textShadow: `0 0 60px ${feedback.type === 'correct' ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.5)'}` }}
+          >
             {feedback.type === 'correct' ? 'CORRECT!' : 'OOPS!'}
           </div>
-          <div className="text-white text-4xl md:text-6xl font-bold uppercase tracking-wider mb-6">
+          <div className="text-white/90 text-4xl md:text-6xl font-bold uppercase tracking-widest mb-6 animate-slide-up stagger-2">
             {feedback.playerName}
           </div>
-          <div className="text-white text-6xl md:text-8xl font-mono font-bold bg-black/30 px-8 py-3 rounded-xl">
-            {feedback.points > 0 ? '+' : ''}{feedback.points}
+          <div
+            className="font-mono-game text-white text-6xl md:text-8xl font-bold px-10 py-4 rounded-2xl animate-slide-up stagger-3"
+            style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.15)' }}
+          >
+            {feedback.points > 0 ? '+' : ''}{feedback.points.toLocaleString()}
           </div>
         </div>
       )}
 
       {/* Active Question Overlay */}
       {activeQuestionData && !showDailyDouble && (
-        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center p-6 md:p-12 text-center bg-gradient-to-b from-blue-900 via-slate-900 to-slate-950">
+        <div
+          className="fixed inset-0 z-40 flex flex-col items-center justify-center p-6 md:p-14 text-center"
+          style={{
+            background: 'linear-gradient(165deg, #060d3a 0%, #030820 40%, #03040c 100%)',
+          }}
+        >
+          {/* Radial glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 50% 35% at 50% 50%, rgba(91,141,239,0.12) 0%, transparent 70%)',
+            }}
+          />
+
           {timerEndTime && (
-            <div className="absolute top-6 right-6">
+            <div className="absolute top-6 right-6 z-10">
               <Timer endTime={timerEndTime} size="lg" />
             </div>
           )}
-          
-          <div className="font-display text-amber-400 text-2xl md:text-4xl mb-6 uppercase tracking-widest border-b-4 border-amber-500 pb-2">
-            {currentQuestion?.isDailyDouble && <span className="text-orange-400">★ </span>}
-            {categories[currentQuestion!.categoryIndex]?.name} — ${activeQuestionData.value}
-            {currentQuestion?.isDailyDouble && <span className="text-orange-400"> ★</span>}
+
+          {/* Category + value strip */}
+          <div className="relative mb-8 text-center">
+            {currentQuestion?.isDailyDouble && (
+              <div
+                className="inline-block mb-3 px-5 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest"
+                style={{
+                  background: 'linear-gradient(135deg, #92400e, #b45309)',
+                  color: '#fde68a',
+                  boxShadow: '0 0 20px rgba(180,83,9,0.4)',
+                }}
+              >
+                ★ Daily Double ★
+              </div>
+            )}
+            <div
+              className="font-display text-xl md:text-3xl text-amber-400 tracking-widest"
+              style={{ textShadow: '0 0 24px rgba(228,181,69,0.4)' }}
+            >
+              {categories[currentQuestion!.categoryIndex]?.name}
+            </div>
+            <div
+              className="font-mono-game text-amber-300/80 text-2xl md:text-4xl font-bold mt-1"
+            >
+              ${activeQuestionData.value.toLocaleString()}
+            </div>
           </div>
-          <div className="text-white text-3xl md:text-6xl font-serif leading-relaxed max-w-5xl">
+
+          {/* Divider */}
+          <div className="relative w-24 h-0.5 mb-8 mx-auto" style={{ background: 'linear-gradient(90deg, transparent, rgba(228,181,69,0.5), transparent)' }} />
+
+          {/* Question text */}
+          <div
+            className="relative text-white text-2xl md:text-5xl font-serif leading-relaxed max-w-5xl"
+            style={{ lineHeight: 1.4 }}
+          >
             {activeQuestionData.question}
           </div>
         </div>
@@ -321,44 +456,91 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
 
       {/* Buzzer Overlay */}
       {activePlayerName && !feedback && !showDailyDouble && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(4px)' }}>
           {timerEndTime && (
             <div className="absolute top-6 right-6">
               <Timer endTime={timerEndTime} size="lg" />
             </div>
           )}
-          
-          <div className="bg-red-600 p-10 md:p-16 rounded-3xl border-8 border-red-800 shadow-[0_0_100px_rgba(220,38,38,0.8)] text-center animate-scale-in">
-            <div className="text-white text-2xl font-bold uppercase tracking-widest mb-4 opacity-80">Buzz!</div>
-            <div className="text-white text-5xl md:text-7xl font-black">{activePlayerName}</div>
+
+          <div
+            className="px-12 md:px-20 py-10 md:py-14 rounded-3xl text-center animate-scale-in"
+            style={{
+              background: 'linear-gradient(145deg, #7f1d1d, #991b1b)',
+              border: '4px solid #ef4444',
+              boxShadow: '0 0 80px rgba(239,68,68,0.6), 0 0 160px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+            }}
+          >
+            <div
+              className="font-display text-white text-2xl mb-4 tracking-widest opacity-80"
+              style={{ textShadow: '0 0 20px rgba(248,113,113,0.4)' }}
+            >
+              BUZZ!
+            </div>
+            <div
+              className="text-white text-5xl md:text-7xl font-black"
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", textShadow: '0 0 30px rgba(255,255,255,0.3)' }}
+            >
+              {activePlayerName}
+            </div>
           </div>
         </div>
       )}
 
       {/* Round Badge */}
-      <div className="absolute top-4 left-4 z-20">
-        <div className={`px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${
-          round === 'double' ? 'bg-purple-600' : 'bg-blue-600'
-        }`}>
+      <div className="absolute top-3 left-3 z-20">
+        <div
+          className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
+          style={
+            round === 'double'
+              ? { background: 'rgba(88,28,135,0.8)', color: '#d8b4fe', border: '1px solid rgba(167,139,250,0.3)', backdropFilter: 'blur(8px)' }
+              : { background: 'rgba(14,30,120,0.8)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.3)', backdropFilter: 'blur(8px)' }
+          }
+        >
           {round === 'double' ? 'Double Jeopardy!' : 'Jeopardy!'}
         </div>
       </div>
 
       {/* Controlling Player */}
       {controllingPlayer && scores[controllingPlayer] && (
-        <div className="absolute top-4 right-4 z-20 bg-amber-500/20 border border-amber-500/50 px-4 py-2 rounded-full">
-          <span className="text-amber-400 text-sm font-bold">
+        <div
+          className="absolute top-3 right-3 z-20 px-4 py-1.5 rounded-full"
+          style={{
+            background: 'rgba(120,80,0,0.4)',
+            border: '1px solid rgba(228,181,69,0.35)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <span
+            className="text-sm font-bold"
+            style={{ color: '#e4b545', textShadow: '0 0 12px rgba(228,181,69,0.3)' }}
+          >
             {scores[controllingPlayer].name}'s pick
           </span>
         </div>
       )}
 
-      {/* Game Board Grid - 6 rows: 1 for categories, 5 for questions */}
-      <div className="flex-1 min-h-0 grid grid-cols-5 grid-rows-6 gap-0.5 md:gap-1 p-1 md:p-2">
+      {/* Game Board Grid */}
+      <div
+        className="flex-1 min-h-0 grid grid-cols-5 p-1 md:p-2"
+        style={{
+          gap: '3px',
+          gridTemplateRows: 'minmax(0, 1.3fr) repeat(5, minmax(0, 1fr))',
+          background: '#020510',
+        }}
+      >
         {/* Category Headers */}
         {categories.map((category, idx) => (
-          <div key={idx} className="bg-blue-800 p-1 md:p-2 text-center flex items-center justify-center border-b-2 border-blue-900 shadow-lg min-h-0">
-            <h2 className="text-[10px] sm:text-xs md:text-sm lg:text-base font-bold uppercase tracking-wider text-white leading-tight line-clamp-2">{category.name}</h2>
+          <div
+            key={idx}
+            className="board-category flex items-center justify-center p-1 md:p-2 rounded-t-sm"
+          >
+            <h2
+              className="font-display text-[10px] sm:text-xs md:text-sm lg:text-base text-center leading-tight text-white line-clamp-2"
+              style={{ letterSpacing: '0.05em' }}
+            >
+              {category.name}
+            </h2>
           </div>
         ))}
 
@@ -369,15 +551,17 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
             const isPlayed = playedQuestions.includes(`${colIndex}-${rowIndex}`);
 
             return (
-              <div 
-                key={`${colIndex}-${rowIndex}`} 
-                className={`flex items-center justify-center border border-blue-800/50 shadow-inner transition-colors duration-300 min-h-0 ${
-                  isPlayed ? 'bg-blue-950' : 'bg-blue-700'
-                }`}
+              <div
+                key={`${colIndex}-${rowIndex}`}
+                className={`board-tile${isPlayed ? ' played' : ''}`}
+                style={{ borderRadius: '3px' }}
               >
                 {!isPlayed && question && (
-                  <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-amber-400 font-mono">
-                    ${question.value}
+                  <span
+                    className="font-mono-game text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold relative z-10"
+                    style={{ color: '#e4b545', textShadow: '0 0 16px rgba(228,181,69,0.25)' }}
+                  >
+                    ${question.value.toLocaleString()}
                   </span>
                 )}
               </div>
@@ -388,16 +572,26 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameData, socket }) => {
 
       {/* Score Footer */}
       {Object.keys(scores).length > 0 && (
-        <div className={`shrink-0 py-2 px-3 md:py-3 md:px-4 flex justify-center gap-3 md:gap-6 border-t-2 border-amber-500 bg-slate-900/95 backdrop-blur ${panel}`}>
+        <div
+          className="shrink-0 py-2.5 px-4 flex justify-center gap-4 md:gap-10"
+          style={{
+            background: 'rgba(3,4,12,0.97)',
+            borderTop: '2px solid rgba(228,181,69,0.25)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
           {Object.entries(scores).map(([id, player]: [string, any]) => (
-            <div key={id} className={`flex flex-col items-center min-w-[60px] md:min-w-[100px] ${
-              controllingPlayer === id ? 'ring-2 ring-amber-400 rounded-lg p-1' : ''
-            }`}>
-              <div className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wider">
+            <div
+              key={id}
+              className={`flex flex-col items-center min-w-[60px] md:min-w-[100px] ${
+                controllingPlayer === id ? 'ring-1 ring-amber-400/60 rounded-lg px-2' : ''
+              }`}
+            >
+              <div className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest leading-none mb-1">
                 {player.name}
-                {controllingPlayer === id && <span className="text-amber-400 ml-1">★</span>}
+                {controllingPlayer === id && <span style={{ color: '#e4b545' }}> ★</span>}
               </div>
-              <div className={`text-base md:text-2xl font-mono font-bold ${getScoreColor(player.score)}`}>
+              <div className={`font-mono-game text-base md:text-2xl font-bold ${getScoreColor(player.score)}`}>
                 ${player.score.toLocaleString()}
               </div>
             </div>

@@ -10,17 +10,17 @@ const socket: Socket = io(SERVER_URL);
 type EditorRound = 'jeopardy' | 'double' | 'final';
 
 export const EditorView: React.FC = () => {
-  const [allBoards, setAllBoards] = useState<any>(null);
-  const [activeBoardId, setActiveBoardId] = useState<string>('');
+  const [allBoards, setAllBoards]           = useState<any>(null);
+  const [activeBoardId, setActiveBoardId]   = useState<string>('');
   const [selectedBoardId, setSelectedBoardId] = useState<string>('');
-  const [selectedRound, setSelectedRound] = useState<EditorRound>('jeopardy');
-  const [showSidebar, setShowSidebar] = useState(false);
-  
-  const [editingCell, setEditingCell] = useState<{cIdx: number, qIdx: number} | null>(null);
-  const [editForm, setEditForm] = useState({ question: '', answer: '', value: 0 });
-  const [editingFJ, setEditingFJ] = useState(false);
-  const [fjForm, setFjForm] = useState({ category: '', clue: '', answer: '' });
-  const [isSaving, setIsSaving] = useState(false);
+  const [selectedRound, setSelectedRound]   = useState<EditorRound>('jeopardy');
+  const [showSidebar, setShowSidebar]       = useState(false);
+
+  const [editingCell, setEditingCell]       = useState<{cIdx: number, qIdx: number} | null>(null);
+  const [editForm, setEditForm]             = useState({ question: '', answer: '', value: 0 });
+  const [editingFJ, setEditingFJ]           = useState(false);
+  const [fjForm, setFjForm]                 = useState({ category: '', clue: '', answer: '' });
+  const [isSaving, setIsSaving]             = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,13 +31,10 @@ export const EditorView: React.FC = () => {
         setSelectedBoardId(data.activeBoardId);
       }
     });
-
     socket.on('save-success', () => setIsSaving(false));
-    
     const requestData = () => socket.emit('request-all-boards');
     if (socket.connected) requestData();
     else socket.on('connect', requestData);
-
     return () => {
       socket.off('all-boards-data');
       socket.off('save-success');
@@ -45,13 +42,13 @@ export const EditorView: React.FC = () => {
     };
   }, [selectedBoardId]);
 
-  const currentGameData = allBoards?.[selectedBoardId]?.data;
+  const currentGameData  = allBoards?.[selectedBoardId]?.data;
   const currentBoardName = allBoards?.[selectedBoardId]?.name || '';
 
   const getCategories = () => {
     if (!currentGameData?.rounds) return [];
     if (selectedRound === 'jeopardy') return currentGameData.rounds.jeopardy?.categories || [];
-    if (selectedRound === 'double') return currentGameData.rounds.double?.categories || [];
+    if (selectedRound === 'double')   return currentGameData.rounds.double?.categories   || [];
     return [];
   };
 
@@ -63,19 +60,16 @@ export const EditorView: React.FC = () => {
     setEditingCell({ cIdx, qIdx });
     setEditForm({
       question: q.question === 'Enter question here...' ? '' : q.question,
-      answer: q.answer === 'Enter answer here...' ? '' : q.answer,
-      value: q.value,
+      answer:   q.answer   === 'Enter answer here...'   ? '' : q.answer,
+      value:    q.value,
     });
   };
 
   const handleCategoryChange = (cIdx: number, newName: string) => {
     if (!currentGameData) return;
     const newData = JSON.parse(JSON.stringify(currentGameData));
-    if (selectedRound === 'jeopardy') {
-      newData.rounds.jeopardy.categories[cIdx].name = newName;
-    } else if (selectedRound === 'double') {
-      newData.rounds.double.categories[cIdx].name = newName;
-    }
+    if (selectedRound === 'jeopardy') newData.rounds.jeopardy.categories[cIdx].name = newName;
+    else if (selectedRound === 'double') newData.rounds.double.categories[cIdx].name = newName;
     saveBoard(newData);
   };
 
@@ -104,8 +98,8 @@ export const EditorView: React.FC = () => {
     e.preventDefault();
     if (editingCell && currentGameData) {
       const newData = JSON.parse(JSON.stringify(currentGameData));
-      const target = selectedRound === 'jeopardy' 
-        ? newData.rounds.jeopardy.categories 
+      const target  = selectedRound === 'jeopardy'
+        ? newData.rounds.jeopardy.categories
         : newData.rounds.double.categories;
       target[editingCell.cIdx].questions[editingCell.qIdx] = {
         ...target[editingCell.cIdx].questions[editingCell.qIdx],
@@ -147,89 +141,147 @@ export const EditorView: React.FC = () => {
 
   const switchActiveBoard = (id: string) => socket.emit('switch-board', id);
 
-  // === LOADING ===
+  // ── Loading ──
   if (!allBoards) {
     return (
-      <JeopardyShell backgroundMode="viewport">
-        <div className="min-h-dvh w-full flex items-center justify-center p-6">
+      <JeopardyShell backgroundMode="viewport" safeArea={false}>
+        <div className="w-full flex items-center justify-center" style={{ minHeight: '100dvh', padding: '1.5rem' }}>
           <div className={`${panel} p-8`}>
-            <h1 className="font-display text-2xl text-amber-400">Loading Editor...</h1>
+            <div className="font-display text-2xl text-amber-400">Loading Editor…</div>
           </div>
         </div>
       </JeopardyShell>
     );
   }
 
+  // Shared input style
+  const fieldStyle: React.CSSProperties = {
+    background: 'rgba(3,4,12,0.7)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    color: '#eef2ff',
+    outline: 'none',
+  };
+
+  const roundColors: Record<EditorRound, { tile: string; cat: string; active: string }> = {
+    jeopardy: {
+      tile: 'rgba(13,27,120,0.5)',
+      cat:  'rgba(7,13,64,0.8)',
+      active: '#1325a0',
+    },
+    double: {
+      tile: 'rgba(60,20,100,0.5)',
+      cat:  'rgba(30,10,60,0.8)',
+      active: '#5b21b6',
+    },
+    final: {
+      tile: 'rgba(120,80,0,0.4)',
+      cat:  'rgba(60,40,0,0.8)',
+      active: '#b45309',
+    },
+  };
+
+  const rc = roundColors[selectedRound];
+
   return (
-    <JeopardyShell backgroundMode="viewport">
-      <div className="min-h-dvh w-full flex flex-col lg:flex-row">
-        
+    <JeopardyShell backgroundMode="viewport" safeArea={false} className="lg:h-dvh lg:overflow-hidden">
+      <div className="w-full flex flex-col lg:flex-row" style={{ minHeight: '100dvh' }}>
+
         {/* Mobile Header */}
-        <header className="lg:hidden shrink-0 px-4 pt-4 pb-3 border-b border-slate-700/50 flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="text-slate-400 hover:text-white p-1">←</button>
+        <header
+          className="lg:hidden shrink-0 px-4 pt-4 pb-3 flex items-center justify-between"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+        >
+          <button onClick={() => navigate('/')} className="text-slate-500 hover:text-white p-1 transition-colors">←</button>
           <h1 className="font-display text-lg text-amber-400">Board Editor</h1>
-          <button 
+          <button
             onClick={() => setShowSidebar(true)}
-            className="p-2 rounded-lg bg-slate-800/80 text-slate-300"
+            className="p-2 rounded-lg text-slate-300 transition-all"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
             📁
           </button>
         </header>
 
-        {/* Sidebar - Desktop always visible, Mobile as overlay */}
+        {/* Sidebar */}
         <aside className={`
           ${showSidebar ? 'fixed inset-0 z-50 flex' : 'hidden'}
           lg:relative lg:flex lg:z-auto lg:inset-auto
           lg:w-64 lg:shrink-0
         `}>
-          {/* Backdrop (mobile only) */}
-          <div 
-            className="absolute inset-0 bg-black/60 lg:hidden"
+          {/* Backdrop (mobile) */}
+          <div
+            className="absolute inset-0 bg-black/70 lg:hidden"
             onClick={() => setShowSidebar(false)}
           />
-          
+
           {/* Sidebar Content */}
-          <div className="relative w-72 lg:w-full h-full bg-slate-900/95 border-r border-slate-700/50 flex flex-col">
-            <div className="p-4 border-b border-slate-700/50 flex items-center justify-between">
-              <h2 className="font-display text-xl text-slate-100">Saved Boards</h2>
-              <button 
-                className="lg:hidden text-slate-400 hover:text-white p-1"
+          <div
+            className="relative w-72 lg:w-full h-full flex flex-col"
+            style={{
+              background: 'rgba(3,4,12,0.97)',
+              borderRight: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            <div
+              className="p-4 flex items-center justify-between"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+            >
+              <h2 className="font-display text-xl text-slate-100">Boards</h2>
+              <button
+                className="lg:hidden text-slate-500 hover:text-white p-1 transition-colors"
                 onClick={() => setShowSidebar(false)}
               >
                 ✕
               </button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+
+            <div className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
               {Object.entries(allBoards).map(([id, board]: [string, any]) => (
-                <div 
+                <div
                   key={id}
                   onClick={() => { setSelectedBoardId(id); setShowSidebar(false); }}
-                  className={`p-3 rounded-xl cursor-pointer transition-all relative group ${
-                    selectedBoardId === id 
-                      ? 'bg-amber-500/15 border border-amber-400/30' 
-                      : 'bg-slate-800/50 border border-transparent hover:bg-slate-800'
-                  }`}
+                  className="p-3 rounded-xl cursor-pointer transition-all relative group"
+                  style={
+                    selectedBoardId === id
+                      ? { background: 'rgba(120,80,0,0.2)', border: '1px solid rgba(228,181,69,0.3)' }
+                      : { background: 'rgba(255,255,255,0.03)', border: '1px solid transparent' }
+                  }
+                  onMouseEnter={(e) => { if (selectedBoardId !== id) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; }}
+                  onMouseLeave={(e) => { if (selectedBoardId !== id) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)'; }}
                 >
-                  <div className="font-medium text-sm truncate pr-6">{board.name}</div>
+                  <div className="font-medium text-sm text-white truncate pr-6">{board.name}</div>
                   {activeBoardId === id && (
-                    <div className="text-[10px] text-emerald-400 font-mono mt-1 uppercase tracking-wider">● Active</div>
+                    <div className="text-[10px] mt-1 uppercase tracking-wider font-semibold" style={{ color: '#4ade80' }}>
+                      ● Active
+                    </div>
                   )}
                   <button
                     onClick={(e) => { e.stopPropagation(); deleteBoard(id); }}
-                    className="absolute right-2 top-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 p-1"
+                    className="absolute right-2 top-2 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ color: '#4a5880' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#f87171'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#4a5880'; }}
                   >
                     ✕
                   </button>
                 </div>
               ))}
             </div>
-            
-            <div className="p-4 border-t border-slate-700/50 space-y-2">
+
+            <div
+              className="p-4 space-y-2"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+            >
               <button onClick={createNewBoard} className={`w-full py-2.5 rounded-xl text-sm ${buttonPrimary}`}>
                 + New Board
               </button>
-              <button onClick={() => navigate('/')} className="w-full text-slate-400 hover:text-white text-sm py-2">
+              <button
+                onClick={() => navigate('/')}
+                className="w-full text-sm py-2 transition-colors"
+                style={{ color: '#4a5880' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#8a9cc8'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#4a5880'; }}
+              >
                 ← Exit
               </button>
             </div>
@@ -241,25 +293,36 @@ export const EditorView: React.FC = () => {
           {selectedBoardId && currentGameData ? (
             <>
               {/* Editor Header */}
-              <div className="shrink-0 px-4 py-3 border-b border-slate-700/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div
+                className="shrink-0 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+              >
                 <input
                   value={currentBoardName}
                   onChange={(e) => handleBoardNameChange(e.target.value)}
                   onBlur={saveBoardName}
-                  className={`text-xl font-bold text-white bg-transparent border-b border-transparent hover:border-amber-400/30 focus:border-amber-400 outline-none w-full sm:w-auto ${focusRing}`}
+                  className={`text-xl font-bold text-white bg-transparent border-b border-transparent hover:border-amber-400/25 focus:border-amber-400/50 outline-none w-full sm:w-auto ${focusRing}`}
                   placeholder="Board Name"
                 />
-                
                 <div className="flex items-center gap-3">
-                  <span className={`text-xs ${isSaving ? 'text-amber-400' : 'text-slate-500'}`}>
-                    {isSaving ? '⏳ Saving...' : '✓ Saved'}
+                  <span
+                    className="text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: isSaving ? '#e4b545' : '#4a5880' }}
+                  >
+                    {isSaving ? '⏳ Saving…' : '✓ Saved'}
                   </span>
                   {activeBoardId !== selectedBoardId ? (
-                    <button onClick={() => switchActiveBoard(selectedBoardId)} className={`px-4 py-2 rounded-lg text-xs ${buttonPrimary}`}>
+                    <button
+                      onClick={() => switchActiveBoard(selectedBoardId)}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold ${buttonPrimary}`}
+                    >
                       Set Active
                     </button>
                   ) : (
-                    <span className="bg-emerald-900/50 text-emerald-300 px-4 py-2 rounded-lg text-xs font-bold">
+                    <span
+                      className="px-4 py-2 rounded-lg text-xs font-bold"
+                      style={{ background: 'rgba(21,128,61,0.25)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)' }}
+                    >
                       ● Active
                     </span>
                   )}
@@ -267,24 +330,34 @@ export const EditorView: React.FC = () => {
               </div>
 
               {/* Round Tabs */}
-              <div className="shrink-0 flex border-b border-slate-700/50 overflow-x-auto scrollbar-hide">
-                {(['jeopardy', 'double', 'final'] as EditorRound[]).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => setSelectedRound(r)}
-                    className={`px-4 sm:px-6 py-3 font-bold text-xs sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all ${
-                      selectedRound === r
-                        ? r === 'final' 
-                          ? 'bg-amber-600 text-slate-900 border-b-2 border-amber-400' 
-                          : r === 'double'
-                          ? 'bg-purple-600 text-white border-b-2 border-amber-400'
-                          : 'bg-blue-600 text-white border-b-2 border-amber-400'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                    }`}
-                  >
-                    {r === 'jeopardy' ? 'Round 1' : r === 'double' ? 'Round 2' : 'Final'}
-                  </button>
-                ))}
+              <div
+                className="shrink-0 flex gap-1 px-4 pt-3 overflow-x-auto scrollbar-hide"
+                style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+              >
+                {(['jeopardy', 'double', 'final'] as EditorRound[]).map((r) => {
+                  const tabColors = {
+                    jeopardy: { active: '#93c5fd', border: '#3b82f6', bg: 'rgba(14,30,120,0.3)' },
+                    double:   { active: '#d8b4fe', border: '#a855f7', bg: 'rgba(88,28,135,0.3)' },
+                    final:    { active: '#fcd34d', border: '#f59e0b', bg: 'rgba(120,60,0,0.3)' },
+                  };
+                  const tc = tabColors[r];
+                  return (
+                    <button
+                      key={r}
+                      onClick={() => setSelectedRound(r)}
+                      className="px-5 py-2.5 rounded-t-xl font-bold text-xs sm:text-sm uppercase tracking-wider whitespace-nowrap transition-all border-b-2 -mb-px"
+                      style={
+                        selectedRound === r
+                          ? { background: tc.bg, color: tc.active, borderBottomColor: tc.border }
+                          : { color: '#4a5880', borderBottomColor: 'transparent' }
+                      }
+                      onMouseEnter={(e) => { if (selectedRound !== r) e.currentTarget.style.color = '#eef2ff'; }}
+                      onMouseLeave={(e) => { if (selectedRound !== r) e.currentTarget.style.color = '#4a5880'; }}
+                    >
+                      {r === 'jeopardy' ? 'Round 1' : r === 'double' ? 'Round 2' : 'Final'}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Grid or Final Jeopardy */}
@@ -297,9 +370,8 @@ export const EditorView: React.FC = () => {
                         key={`cat-${cIdx}`}
                         value={c.name}
                         onChange={(e) => handleCategoryChange(cIdx, e.target.value)}
-                        className={`text-center font-bold text-white p-2 rounded-lg border border-slate-600/50 uppercase resize-none text-[10px] sm:text-xs md:text-sm min-h-[50px] ${
-                          selectedRound === 'double' ? 'bg-purple-900/60' : 'bg-blue-900/60'
-                        } ${focusRing}`}
+                        className={`text-center font-bold text-white p-2 rounded-lg resize-none text-[10px] sm:text-xs md:text-sm min-h-[50px] uppercase transition-all ${focusRing}`}
+                        style={{ ...fieldStyle, background: rc.cat, border: `1px solid rgba(255,255,255,0.08)` }}
                         placeholder="CATEGORY"
                       />
                     ))}
@@ -313,16 +385,20 @@ export const EditorView: React.FC = () => {
                           <button
                             key={`${cIdx}-${r}`}
                             onClick={() => handleEditClick(cIdx, r)}
-                            className={`p-2 rounded-lg border border-slate-600/30 flex flex-col items-center justify-center text-center relative transition-all hover:border-amber-400/50 hover:scale-[1.02] ${
-                              selectedRound === 'double' ? 'bg-purple-900/40' : 'bg-blue-900/40'
-                            }`}
+                            className="p-2 rounded-lg flex flex-col items-center justify-center text-center relative transition-all hover:scale-[1.02]"
+                            style={{
+                              background: rc.tile,
+                              border: '1px solid rgba(255,255,255,0.07)',
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(228,181,69,0.4)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
                           >
-                            <span className="text-amber-400 font-bold text-sm sm:text-base">${q?.value || 0}</span>
+                            <span className="font-mono-game text-amber-400 font-bold text-sm sm:text-base">${q?.value || 0}</span>
                             <span className="text-[8px] sm:text-xs text-slate-400 line-clamp-2 mt-1 px-1">
-                              {q?.question || <span className="italic opacity-50">Empty</span>}
+                              {q?.question || <span className="italic opacity-40">Empty</span>}
                             </span>
                             {hasContent && (
-                              <div className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full opacity-60" />
+                              <div className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: '#4ade80', boxShadow: '0 0 4px rgba(74,222,128,0.5)' }} />
                             )}
                           </button>
                         );
@@ -333,20 +409,21 @@ export const EditorView: React.FC = () => {
                   /* Final Jeopardy */
                   <div className="h-full flex items-center justify-center">
                     <div className={`${panelGold} w-full max-w-lg p-6`}>
-                      <h2 className="font-display text-2xl text-amber-400 text-center mb-6">Final Jeopardy!</h2>
-                      
+                      <h2 className="font-display text-2xl text-amber-400 text-center mb-6" style={{ textShadow: '0 0 20px rgba(228,181,69,0.3)' }}>
+                        Final Jeopardy!
+                      </h2>
                       {currentGameData.finalJeopardy ? (
                         <div className="space-y-4 text-center">
                           <div>
-                            <div className="text-slate-500 text-xs uppercase mb-1">Category</div>
-                            <div className="text-lg font-bold">{currentGameData.finalJeopardy.category || 'Not set'}</div>
+                            <div className="text-xs uppercase tracking-widest mb-1 font-semibold" style={{ color: '#4a5880' }}>Category</div>
+                            <div className="text-lg font-bold text-white">{currentGameData.finalJeopardy.category || 'Not set'}</div>
                           </div>
                           <div>
-                            <div className="text-slate-500 text-xs uppercase mb-1">Clue</div>
-                            <div className="text-base font-serif">{currentGameData.finalJeopardy.clue || 'Not set'}</div>
+                            <div className="text-xs uppercase tracking-widest mb-1 font-semibold" style={{ color: '#4a5880' }}>Clue</div>
+                            <div className="text-base font-serif text-white">{currentGameData.finalJeopardy.clue || 'Not set'}</div>
                           </div>
                           <div>
-                            <div className="text-slate-500 text-xs uppercase mb-1">Answer</div>
+                            <div className="text-xs uppercase tracking-widest mb-1 font-semibold" style={{ color: '#4a5880' }}>Answer</div>
                             <div className="text-emerald-400 font-bold">{currentGameData.finalJeopardy.answer || 'Not set'}</div>
                           </div>
                           <button onClick={handleEditFJ} className={`w-full py-3 rounded-xl mt-4 ${buttonPrimary}`}>
@@ -354,7 +431,7 @@ export const EditorView: React.FC = () => {
                           </button>
                         </div>
                       ) : (
-                        <div className="text-center text-slate-500">
+                        <div className="text-center" style={{ color: '#4a5880' }}>
                           <p>No Final Jeopardy set</p>
                           <button onClick={handleEditFJ} className={`py-3 px-8 rounded-xl mt-4 ${buttonPrimary}`}>
                             Create
@@ -367,8 +444,8 @@ export const EditorView: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-slate-500 p-8">
-              <span className="text-5xl mb-4 opacity-30">📋</span>
+            <div className="flex-1 flex flex-col items-center justify-center p-8" style={{ color: '#4a5880' }}>
+              <span className="text-5xl mb-4 opacity-20">📋</span>
               <p className="text-lg">Select a board to edit</p>
             </div>
           )}
@@ -377,51 +454,54 @@ export const EditorView: React.FC = () => {
 
       {/* Edit Question Modal */}
       {editingCell && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display text-2xl text-amber-400 mb-4">Edit Question</h2>
-            
+        <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(8px)' }}>
+          <div
+            className="w-full max-w-lg p-6 rounded-2xl animate-scale-in max-h-[90vh] overflow-y-auto"
+            style={{ background: '#06080f', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 64px rgba(0,0,0,0.7)' }}
+          >
+            <h2 className="font-display text-2xl text-amber-400 mb-5" style={{ textShadow: '0 0 16px rgba(228,181,69,0.3)' }}>
+              Edit Question
+            </h2>
             <form onSubmit={handleSaveForm} className="space-y-4">
               <div>
-                <label className="block text-slate-500 text-xs uppercase mb-1">Question/Clue</label>
+                <label className="block text-xs uppercase tracking-widest mb-1.5 font-semibold" style={{ color: '#4a5880' }}>
+                  Question / Clue
+                </label>
                 <textarea
                   value={editForm.question}
                   onChange={(e) => setEditForm({ ...editForm, question: e.target.value })}
-                  className={`w-full p-3 rounded-xl bg-slate-800/80 border border-slate-600/50 text-white h-28 resize-none ${focusRing}`}
-                  placeholder="Enter question..."
+                  className={`w-full p-3 rounded-xl text-white h-28 resize-none ${focusRing}`}
+                  style={{ ...fieldStyle, border: '1px solid rgba(255,255,255,0.08)' }}
+                  placeholder="Enter question…"
                   autoFocus
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-500 text-xs uppercase mb-1">Answer</label>
+                  <label className="block text-xs uppercase tracking-widest mb-1.5 font-semibold" style={{ color: '#4a5880' }}>Answer</label>
                   <input
                     type="text"
                     value={editForm.answer}
                     onChange={(e) => setEditForm({ ...editForm, answer: e.target.value })}
-                    className={`w-full p-3 rounded-xl bg-slate-800/80 border border-slate-600/50 text-white ${focusRing}`}
-                    placeholder="Answer..."
+                    className={`w-full p-3 rounded-xl text-white ${focusRing}`}
+                    style={{ ...fieldStyle, border: '1px solid rgba(255,255,255,0.08)' }}
+                    placeholder="Answer…"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-500 text-xs uppercase mb-1">Value ($)</label>
+                  <label className="block text-xs uppercase tracking-widest mb-1.5 font-semibold" style={{ color: '#4a5880' }}>Value ($)</label>
                   <input
                     type="number"
                     value={editForm.value}
                     onChange={(e) => setEditForm({ ...editForm, value: parseInt(e.target.value) || 0 })}
-                    className={`w-full p-3 rounded-xl bg-slate-800/80 border border-slate-600/50 text-white ${focusRing}`}
+                    className={`w-full p-3 rounded-xl font-mono-game text-white ${focusRing}`}
+                    style={{ ...fieldStyle, border: '1px solid rgba(255,255,255,0.08)' }}
                   />
                 </div>
               </div>
-
-              <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setEditingCell(null)} className={`flex-1 py-3 rounded-xl ${buttonSecondary}`}>
-                  Cancel
-                </button>
-                <button type="submit" className={`flex-1 py-3 rounded-xl ${buttonPrimary}`}>
-                  Save
-                </button>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setEditingCell(null)} className={`flex-1 py-3 rounded-xl ${buttonSecondary}`}>Cancel</button>
+                <button type="submit" className={`flex-1 py-3 rounded-xl ${buttonPrimary}`}>Save</button>
               </div>
             </form>
           </div>
@@ -430,51 +510,51 @@ export const EditorView: React.FC = () => {
 
       {/* Edit Final Jeopardy Modal */}
       {editingFJ && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display text-2xl text-amber-400 mb-4">Edit Final Jeopardy</h2>
-            
+        <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(8px)' }}>
+          <div
+            className="w-full max-w-lg p-6 rounded-2xl animate-scale-in max-h-[90vh] overflow-y-auto"
+            style={{ background: '#06080f', border: '1px solid rgba(228,181,69,0.2)', boxShadow: '0 24px 64px rgba(0,0,0,0.7)' }}
+          >
+            <h2 className="font-display text-2xl text-amber-400 mb-5" style={{ textShadow: '0 0 16px rgba(228,181,69,0.3)' }}>
+              Edit Final Jeopardy
+            </h2>
             <form onSubmit={handleSaveFJ} className="space-y-4">
               <div>
-                <label className="block text-slate-500 text-xs uppercase mb-1">Category</label>
+                <label className="block text-xs uppercase tracking-widest mb-1.5 font-semibold" style={{ color: '#4a5880' }}>Category</label>
                 <input
                   type="text"
                   value={fjForm.category}
                   onChange={(e) => setFjForm({ ...fjForm, category: e.target.value })}
-                  className={`w-full p-3 rounded-xl bg-slate-800/80 border border-slate-600/50 text-white ${focusRing}`}
-                  placeholder="Category..."
+                  className={`w-full p-3 rounded-xl text-white ${focusRing}`}
+                  style={{ ...fieldStyle, border: '1px solid rgba(255,255,255,0.08)' }}
+                  placeholder="Category…"
                   autoFocus
                 />
               </div>
-
               <div>
-                <label className="block text-slate-500 text-xs uppercase mb-1">Clue</label>
+                <label className="block text-xs uppercase tracking-widest mb-1.5 font-semibold" style={{ color: '#4a5880' }}>Clue</label>
                 <textarea
                   value={fjForm.clue}
                   onChange={(e) => setFjForm({ ...fjForm, clue: e.target.value })}
-                  className={`w-full p-3 rounded-xl bg-slate-800/80 border border-slate-600/50 text-white h-28 resize-none ${focusRing}`}
-                  placeholder="Final Jeopardy clue..."
+                  className={`w-full p-3 rounded-xl text-white h-28 resize-none ${focusRing}`}
+                  style={{ ...fieldStyle, border: '1px solid rgba(255,255,255,0.08)' }}
+                  placeholder="Final Jeopardy clue…"
                 />
               </div>
-
               <div>
-                <label className="block text-slate-500 text-xs uppercase mb-1">Answer</label>
+                <label className="block text-xs uppercase tracking-widest mb-1.5 font-semibold" style={{ color: '#4a5880' }}>Answer</label>
                 <input
                   type="text"
                   value={fjForm.answer}
                   onChange={(e) => setFjForm({ ...fjForm, answer: e.target.value })}
-                  className={`w-full p-3 rounded-xl bg-slate-800/80 border border-slate-600/50 text-white ${focusRing}`}
-                  placeholder="What is..."
+                  className={`w-full p-3 rounded-xl text-white ${focusRing}`}
+                  style={{ ...fieldStyle, border: '1px solid rgba(255,255,255,0.08)' }}
+                  placeholder="What is…"
                 />
               </div>
-
-              <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setEditingFJ(false)} className={`flex-1 py-3 rounded-xl ${buttonSecondary}`}>
-                  Cancel
-                </button>
-                <button type="submit" className={`flex-1 py-3 rounded-xl ${buttonPrimary}`}>
-                  Save
-                </button>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setEditingFJ(false)} className={`flex-1 py-3 rounded-xl ${buttonSecondary}`}>Cancel</button>
+                <button type="submit" className={`flex-1 py-3 rounded-xl ${buttonPrimary}`}>Save</button>
               </div>
             </form>
           </div>

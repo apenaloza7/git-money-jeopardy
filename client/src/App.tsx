@@ -95,31 +95,68 @@ function App() {
         
         <Route path="/board" element={
           gameData ? (
-            <JeopardyShell backgroundMode="viewport" className="h-dvh overflow-hidden">
+            <JeopardyShell backgroundMode="viewport" safeArea={false} className="h-dvh overflow-hidden">
               <div className="h-dvh w-full flex flex-col overflow-hidden">
                 {/* Header */}
-                <header className="shrink-0 px-4 py-2 flex items-center justify-between border-b border-slate-700/50">
-                  <h1 className="font-display text-xl md:text-2xl text-amber-400 tracking-wider">
+                <header
+                  className="shrink-0 flex items-center justify-between"
+                  style={{
+                    padding: 'clamp(0.5rem, 1.2vw, 0.875rem) clamp(0.75rem, 2vw, 1.5rem)',
+                    borderBottom: '1px solid rgba(228,181,69,0.15)',
+                    background: 'rgba(3,4,12,0.65)',
+                    backdropFilter: 'blur(12px)',
+                  }}
+                >
+                  <h1
+                    className="font-display tracking-wider"
+                    style={{
+                      fontSize: 'clamp(1.1rem, 2.5vw, 1.75rem)',
+                      color: '#e4b545',
+                      textShadow: '0 0 24px rgba(228,181,69,0.35)',
+                    }}
+                  >
                     Git Money Jeopardy
                   </h1>
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                    <span className="text-xs font-mono text-slate-400">{isConnected ? 'LIVE' : 'OFFLINE'}</span>
+                    <span
+                      className="rounded-full"
+                      style={{
+                        width: '0.5rem', height: '0.5rem',
+                        background: isConnected ? '#22c55e' : '#ef4444',
+                        boxShadow: isConnected ? '0 0 8px rgba(34,197,94,0.7)' : '0 0 8px rgba(239,68,68,0.7)',
+                      }}
+                    />
+                    <span
+                      className="font-mono-game uppercase tracking-widest"
+                      style={{ fontSize: 'clamp(0.55rem, 1vw, 0.7rem)', color: '#4a5880' }}
+                    >
+                      {isConnected ? 'LIVE' : 'OFFLINE'}
+                    </span>
                   </div>
                 </header>
-                
-                {/* Game Board - takes remaining height */}
+
+                {/* Game Board */}
                 <div className="flex-1 min-h-0">
                   <GameBoard gameData={gameData} socket={socket} />
                 </div>
               </div>
             </JeopardyShell>
           ) : (
-            <JeopardyShell backgroundMode="viewport">
-              <div className="min-h-dvh w-full flex items-center justify-center">
+            <JeopardyShell backgroundMode="viewport" safeArea={false}>
+              <div className="w-full flex items-center justify-center" style={{ minHeight: '100dvh' }}>
                 <div className="text-center">
-                  <div className="font-display text-2xl text-amber-400 mb-2">Loading Board...</div>
-                  <div className="text-slate-500 text-sm">Connecting to server</div>
+                  <div
+                    className="font-display text-amber-400"
+                    style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', textShadow: '0 0 24px rgba(228,181,69,0.4)', marginBottom: '0.75rem' }}
+                  >
+                    Loading Board…
+                  </div>
+                  <div
+                    className="font-semibold uppercase tracking-widest"
+                    style={{ fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)', color: '#4a5880' }}
+                  >
+                    Connecting to server
+                  </div>
                 </div>
               </div>
             </JeopardyShell>

@@ -13,7 +13,7 @@ interface JeopardyShellProps {
   safeArea?: boolean;
 }
 
-const defaultContainerClass = 
+const defaultContainerClass =
   'mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8';
 
 export const JeopardyShell: React.FC<JeopardyShellProps> = ({
@@ -26,100 +26,111 @@ export const JeopardyShell: React.FC<JeopardyShellProps> = ({
 }) => {
   const isViewport = backgroundMode === 'viewport';
 
-  // Set iOS theme-color for browser chrome
   useEffect(() => {
     if (!isViewport) return;
-
     let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    const previousContent = meta?.getAttribute('content');
-
+    const prev = meta?.getAttribute('content');
     if (!meta) {
       meta = document.createElement('meta');
       meta.setAttribute('name', 'theme-color');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content', '#010409');
-
+    meta.setAttribute('content', '#03040c');
     return () => {
-      if (meta && previousContent) {
-        meta.setAttribute('content', previousContent);
-      } else if (meta && !previousContent) {
-        meta.remove();
-      }
+      if (meta && prev) meta.setAttribute('content', prev);
+      else if (meta && !prev) meta.remove();
     };
   }, [isViewport]);
 
-  const bgPositionClass = isViewport ? 'fixed' : 'absolute';
-  
+  const pos = isViewport ? 'fixed' : 'absolute';
+
   const wrapperClasses = [
     'relative w-full text-white',
     isViewport ? 'min-h-dvh' : 'min-h-screen',
-    safeArea && isViewport ? 'safe-y safe-x' : '',
+    safeArea && isViewport ? 'safe-y' : '',
     className,
   ].filter(Boolean).join(' ');
 
   return (
     <div className={wrapperClasses}>
+
       {/* === BACKGROUND LAYERS === */}
-      
-      {/* Base gradient */}
-      <div 
-        className={`${bgPositionClass} inset-0 -z-20`}
+
+      {/* 1. Void base — cold near-black */}
+      <div
+        className={`${pos} inset-0 -z-30`}
+        style={{ background: 'linear-gradient(145deg, #03040c 0%, #060810 30%, #090d1c 65%, #0c1228 100%)' }}
+      />
+
+      {/* 2. Gold ambient — top-left light source */}
+      <div
+        className={`${pos} inset-0 -z-20`}
         style={{
-          background: 'linear-gradient(135deg, #010409 0%, #0a1628 40%, #0f2847 80%, #1a3a5c 100%)',
+          background: 'radial-gradient(ellipse 75% 60% at 10% 0%, rgba(228,181,69,0.13) 0%, transparent 60%)',
         }}
       />
-      
-      {/* Radial glow from top-left */}
-      <div 
-        className={`${bgPositionClass} inset-0 -z-10 opacity-60`}
+
+      {/* 3. Electric cobalt — bottom-right */}
+      <div
+        className={`${pos} inset-0 -z-20`}
         style={{
-          background: 'radial-gradient(ellipse 80% 60% at 20% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 60%)',
+          background: 'radial-gradient(ellipse 70% 55% at 90% 100%, rgba(91,141,239,0.20) 0%, transparent 55%)',
         }}
       />
-      
-      {/* Radial glow from bottom-right */}
-      <div 
-        className={`${bgPositionClass} inset-0 -z-10 opacity-40`}
+
+      {/* 4. Large gold orb — upper area (desktop only, performance) */}
+      <div
+        className={`${pos} -z-20 hidden md:block pointer-events-none`}
         style={{
-          background: 'radial-gradient(ellipse 70% 50% at 80% 90%, rgba(59, 130, 246, 0.12) 0%, transparent 50%)',
-        }}
-      />
-      
-      {/* Ambient orb - top (hidden on mobile for performance) */}
-      <div 
-        className={`${bgPositionClass} -z-10 hidden md:block`}
-        style={{
-          top: '-15%',
-          left: '5%',
-          width: '40rem',
-          height: '40rem',
+          top: '-25%',
+          left: '-5%',
+          width: '55rem',
+          height: '55rem',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245, 158, 11, 0.06) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-        }}
-      />
-      
-      {/* Ambient orb - bottom (hidden on mobile for performance) */}
-      <div 
-        className={`${bgPositionClass} -z-10 hidden md:block`}
-        style={{
-          bottom: '-20%',
-          right: '-10%',
-          width: '50rem',
-          height: '50rem',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(228,181,69,0.055) 0%, transparent 65%)',
           filter: 'blur(80px)',
         }}
       />
-      
-      {/* Subtle grid overlay */}
-      <div 
-        className={`${bgPositionClass} inset-0 -z-10 opacity-[0.02]`}
+
+      {/* 5. Large cobalt orb — lower area (desktop only) */}
+      <div
+        className={`${pos} -z-20 hidden md:block pointer-events-none`}
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0v60M0 30h60' stroke='%23fff' stroke-width='0.5' fill='none'/%3E%3C/svg%3E")`,
-          backgroundSize: '60px 60px',
+          bottom: '-30%',
+          right: '-15%',
+          width: '60rem',
+          height: '60rem',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(74,125,232,0.10) 0%, transparent 65%)',
+          filter: 'blur(100px)',
+        }}
+      />
+
+      {/* 6. Diagonal light streak — subtle broadcast feel */}
+      <div
+        className={`${pos} inset-0 -z-20 opacity-[0.025] hidden md:block pointer-events-none`}
+        style={{
+          background: 'linear-gradient(125deg, transparent 30%, rgba(255,255,255,0.8) 50%, transparent 70%)',
+          backgroundSize: '200% 200%',
+          backgroundPosition: '110% 110%',
+        }}
+      />
+
+      {/* 7. Fine noise texture */}
+      <div
+        className={`${pos} inset-0 -z-10 opacity-[0.018] pointer-events-none`}
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundSize: '256px 256px',
+        }}
+      />
+
+      {/* 8. Subtle grid overlay */}
+      <div
+        className={`${pos} inset-0 -z-10 opacity-[0.015] pointer-events-none`}
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0v80M0 40h80' stroke='%23fff' stroke-width='0.5' fill='none'/%3E%3C/svg%3E")`,
+          backgroundSize: '80px 80px',
         }}
       />
 
